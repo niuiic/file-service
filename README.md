@@ -249,9 +249,7 @@ flowchart LR
 
     s7[修改数据库分片信息] --> finish
 
-    s8[返回错误信息] --> s9
-
-    s9[从minio移除该分片] --> finish
+    s8[返回错误信息] --> finish
 
     finish(结束)
 ```
