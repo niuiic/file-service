@@ -91,20 +91,21 @@ classDiagram
 erDiagram
     FILE_INFO {
         bigint id PK
-        varchar(256) name
-        varchar(16) hash
+        varchar(255) name
+        varchar(32) hash
         int size "以字节为单位"
-        time create_time
-        time upload_time
-        boolean uploaded
+        timestamp create_time
+        timestamp upload_time
+        boolean deleted
     }
 
-    CHUNK {
+    CHUNK_INFO {
         integer index PK
-        varchar(16) file_hash PK
-        time create_time
-        time upload_time
+        varchar(32) file_hash PK
+        timestamp create_time
+        timestamp upload_time
         boolean uploaded
+        boolean deleted
     }
 ```
 
