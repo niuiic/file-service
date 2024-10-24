@@ -89,7 +89,7 @@ classDiagram
 
 ```mermaid
 erDiagram
-    FILE_INFO {
+    FILES {
         bigint id PK
         varchar(255) name
         varchar(32) hash
@@ -99,7 +99,7 @@ erDiagram
         boolean deleted
     }
 
-    CHUNK_INFO {
+    CHUNKS {
         integer index PK
         varchar(32) file_hash PK
         timestamp create_time
