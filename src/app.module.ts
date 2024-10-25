@@ -1,8 +1,14 @@
 import { Module } from '@nestjs/common'
 import { FileModule } from './modules/file/file.module'
-import { DBModule } from './modules/db/db.module'
+import { db } from './share/db/db'
 
 @Module({
-  imports: [FileModule, DBModule]
+  imports: [FileModule],
+  providers: [
+    {
+      provide: 'DB',
+      useValue: db
+    }
+  ]
 })
 export class AppModule {}

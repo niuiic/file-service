@@ -12,7 +12,8 @@
     "test:coverage": "vitest run --coverage",
     "build": "nest build",
     "db:store": "drizzle-kit pull",
-    "db:restore": "drizzle-kit push"
+    "db:restore": "drizzle-kit push",
+    "debug": "nest start"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.5",
@@ -37,7 +38,6 @@
     "@types/pg": "^8.11.10",
     "@types/supertest": "^6.0.2",
     "@vitest/coverage-v8": "^2.1.3",
-    "dotenv": "^16.4.5",
     "drizzle-kit": "^0.26.2",
     "eslint": "^9.13.0",
     "supertest": "^7.0.0",

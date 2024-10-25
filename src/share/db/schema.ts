@@ -2,10 +2,10 @@ import {
   bigint,
   boolean,
   integer,
-  timestamp,
   varchar,
   primaryKey,
-  pgTable
+  pgTable,
+  time
 } from 'drizzle-orm/pg-core'
 
 export const chunks = pgTable(
@@ -13,8 +13,8 @@ export const chunks = pgTable(
   {
     index: integer().notNull(),
     fileHash: varchar().notNull(),
-    createTime: timestamp().notNull(),
-    uploadTime: timestamp(),
+    createTime: time().notNull(),
+    uploadTime: time(),
     uploaded: boolean().notNull(),
     deleted: boolean().notNull()
   },
@@ -26,7 +26,7 @@ export const files = pgTable('files', {
   name: varchar({ length: 255 }).notNull(),
   hash: varchar({ length: 32 }).notNull(),
   size: integer().notNull(),
-  createTime: timestamp().notNull(),
-  uploadTime: timestamp().notNull(),
+  createTime: time().notNull(),
+  uploadTime: time().notNull(),
   deleted: boolean().notNull()
 })

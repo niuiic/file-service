@@ -1,4 +1,12 @@
-import { Module } from '@nestjs/common'
+import { Controller, Get, Inject } from '@nestjs/common'
+import { FileService } from './file.service'
 
-@Module({})
-export class FileModule {}
+@Controller('file')
+export class FileController {
+  public constructor(@Inject() private readonly fileService: FileService) {}
+
+  @Get('hello')
+  public getHello() {
+    return this.fileService.hello()
+  }
+}
