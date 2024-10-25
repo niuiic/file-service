@@ -1,5 +1,5 @@
 import { DB } from '@/share/db/db'
-import { files } from '@/share/db/schema'
+import { filesSchema } from '@/share/db/schema'
 import { Inject, Injectable } from '@nestjs/common'
 import { eq } from 'drizzle-orm'
 
@@ -8,7 +8,7 @@ export class FileDao {
   public constructor(@Inject('DB') private readonly db: DB) {}
 
   public queryFileById(id: string) {
-    this.db.insert(files).values({
+    this.db.insert(filesSchema).values({
       id: BigInt(1),
       name: 'name',
       hash: 'hash',

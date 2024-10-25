@@ -8,7 +8,7 @@ import {
   time
 } from 'drizzle-orm/pg-core'
 
-export const chunks = pgTable(
+export const chunksSchema = pgTable(
   'chunks',
   {
     index: integer().notNull(),
@@ -21,7 +21,7 @@ export const chunks = pgTable(
   (table) => ({ pk: primaryKey({ columns: [table.index, table.fileHash] }) })
 )
 
-export const files = pgTable('files', {
+export const filesSchema = pgTable('files', {
   id: bigint({ mode: 'bigint' }).primaryKey(),
   name: varchar({ length: 255 }).notNull(),
   hash: varchar({ length: 32 }).notNull(),
