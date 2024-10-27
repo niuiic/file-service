@@ -1,9 +1,13 @@
 import * as schema from './schema'
 import { Global, Module } from '@nestjs/common'
 import { drizzle } from 'drizzle-orm/node-postgres'
+import { Pool } from 'pg'
 
 const db = drizzle({
-  connection: process.env.DB_URL as string,
+  client: new Pool({
+    connectionString: process.env.DB_URL as string,
+    max: 10
+  }),
   casing: 'snake_case',
   schema
 })
