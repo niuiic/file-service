@@ -1,25 +1,21 @@
-import { DB } from '@/share/db/db'
-import { filesSchema } from '@/share/db/schema'
 import { Inject, Injectable } from '@nestjs/common'
 import { eq } from 'drizzle-orm'
+import { DB, DBSchema } from '../db/db.module'
+import { FileSchema } from '../db/schema'
 
 @Injectable()
 export class FileDao {
-  public constructor(@Inject('DB') private readonly db: DB) {}
+  public constructor(
+    @Inject('DB') private readonly db: DB,
+    @Inject('SCHEMA') private readonly schema: DBSchema
+  ) {}
 
-  public queryFileById(id: string) {
-    this.db.insert(filesSchema).values({
-      id: BigInt(1),
-      name: 'name',
-      hash: 'hash',
-      size: 1,
-      createTime: new Date(),
-      uploadTime: new Date(),
-      deleted: false
-    })
-
-    return this.db.query.files.findFirst({
-      where: (users) => eq(users.id, BigInt(id))
-    })
+  public async queryFileById(id: string): Promise<FileSchema> {
+    return this.db
+      .select()
+      .from(this.schema.files)
+      .where((file) => eq(file.id, id))
+      .limit(1)
+      .then((files) => files[0])
   }
 }

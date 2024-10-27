@@ -94,16 +94,16 @@ erDiagram
         varchar(255) name
         varchar(32) hash
         int size "以字节为单位"
-        time create_time
-        time upload_time
+        timestamp create_time
+        timestamp upload_time
         boolean deleted
     }
 
     CHUNKS {
         integer index PK
         varchar(32) file_hash PK
-        time create_time
-        time upload_time
+        timestamp create_time
+        timestamp upload_time
         boolean uploaded
         boolean deleted
     }
