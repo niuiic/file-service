@@ -33,7 +33,7 @@ export const chunks = pgTable(
     uploaded: boolean().notNull(),
     deleted: boolean().notNull()
   },
-  (table) => ({ pk: primaryKey({ columns: [table.index, table.fileHash] }) })
+  (table) => [{ pk: primaryKey({ columns: [table.index, table.fileHash] }) }]
 )
 
 export type ChunkSchema = typeof chunks.$inferInsert
