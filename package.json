@@ -10,7 +10,7 @@
     "test:watch": "vitest",
     "test:e2e": "vitest run -c ./vitest.config.e2e.mts",
     "test:coverage": "vitest run --coverage",
-    "build": "nest build",
+    "build": "tsx build.ts",
     "db:store": "drizzle-kit pull",
     "db:restore": "drizzle-kit push",
     "debug": "nest start"
@@ -41,6 +41,7 @@
     "drizzle-kit": "^0.27.0",
     "eslint": "^9.13.0",
     "supertest": "^7.0.0",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.12.2",
     "unplugin-swc": "^1.5.1",
