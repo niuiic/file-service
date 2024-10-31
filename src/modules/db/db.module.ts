@@ -27,10 +27,10 @@ export type DB = NodePgDatabase<DBSchema> & {
       inject: ['CONFIG']
     },
     {
-      provide: 'SCHEMA',
+      provide: 'DB_SCHEMA',
       useValue: schema
     }
   ],
-  exports: ['DB', 'SCHEMA']
+  exports: ['DB', 'DB_SCHEMA']
 })
 export class DBModule {}

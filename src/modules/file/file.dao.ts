@@ -7,7 +7,7 @@ import { FileSchema } from '../db/schema'
 export class FileDao {
   public constructor(
     @Inject('DB') private readonly db: DB,
-    @Inject('SCHEMA') private readonly schema: DBSchema
+    @Inject('DB_SCHEMA') private readonly schema: DBSchema
   ) {}
 
   public async queryFileById(id: string): Promise<FileSchema> {
