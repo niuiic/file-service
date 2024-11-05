@@ -1,0 +1,6 @@
+{
+  "name": "snowflake-id",
+  "scripts": {
+    "build": "wasm-pack build --release"
+  }
+}
