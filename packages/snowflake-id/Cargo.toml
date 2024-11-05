@@ -10,5 +10,4 @@ crate-type = ["cdylib", "rlib"]
 opt-level = "s"
 
 [dependencies]
-sonyflake = "0.3.0"
 wasm-bindgen = "0.2.95"

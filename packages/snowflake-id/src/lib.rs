@@ -1,8 +1,6 @@
-use sonyflake::Sonyflake;
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen]
-pub fn greet() -> String {
-    let sf = Sonyflake::new().unwrap();
-    sf.next_id().unwrap().to_string()
+#[wasm_bindgen(js_name = "getId")]
+pub fn get_id() -> String {
+    "hello".to_string()
 }
