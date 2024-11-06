@@ -1,5 +1,7 @@
 {
   "name": "snowflake-id",
+  "main": "./dist/snowflake_id.js",
+  "types": "./dist/snowflake_id.d.ts",
   "scripts": {
     "build": "tsx build.ts"
   }
