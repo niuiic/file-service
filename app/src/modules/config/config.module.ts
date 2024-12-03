@@ -3,7 +3,22 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 
 export interface AppConfig {
-  DB_URL: string
+  db: {
+    type: 'postgresql'
+    host: string
+    port: number
+    username: string
+    password: string
+    database: string
+  }
+  cache: {
+    type: 'redis'
+    host: string
+    port: number
+    username: string
+    password: string
+    db: number
+  }
 }
 
 @Global()

@@ -1,3 +1,19 @@
 {
-  "DB_URL": "postgresql://postgres:a@127.0.0.1:5432/file_service"
+  "DB_URL": "postgresql://postgres:a@127.0.0.1:5432/file_service",
+  "db": {
+    "type": "postgresql",
+    "host": "127.0.0.1",
+    "port": 5432,
+    "username": "postgres",
+    "password": "a",
+    "database": "file_service"
+  },
+  "cache": {
+    "type": "redis",
+    "host": "127.0.0.1",
+    "port": 6379,
+    "username": "",
+    "password": "",
+    "db": 0
+  }
 }

@@ -18,7 +18,7 @@ export type DB = NodePgDatabase<DBSchema> & {
       useFactory: (config: AppConfig) =>
         drizzle({
           client: new Pool({
-            connectionString: config.DB_URL,
+            connectionString: `${config.db.type}://${config.db.username}:${config.db.password}@${config.db.host}:${config.db.port}/${config.db.database}`,
             max: 10
           }),
           casing: 'snake_case',
