@@ -10,4 +10,4 @@ async function bootstrap() {
   )
   await app.listen({ host: '0.0.0.0', port: 3000 })
 }
-bootstrap()
+bootstrap().catch(() => {})

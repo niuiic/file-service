@@ -1,5 +1,5 @@
 import { Controller, Get, Inject } from '@nestjs/common'
-import { FileService } from './file.service'
+import type { FileService } from './file.service'
 
 @Controller('file')
 export class FileController {

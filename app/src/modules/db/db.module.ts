@@ -1,8 +1,9 @@
 import * as schema from './schema'
 import { Global, Module } from '@nestjs/common'
-import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres'
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
+import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
-import { AppConfig } from '../config/config.module'
+import type { AppConfig } from '../config/config.module'
 
 export type DBSchema = typeof schema
 
