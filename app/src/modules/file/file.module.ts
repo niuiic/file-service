@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common'
-import { FileDao } from './file.dao'
+import { FileDAO } from './file.dao'
 import { FileController } from './file.controller'
 import { FileService } from './file.service'
 
 @Module({
-  providers: [FileDao, FileService],
+  providers: [FileDAO, FileService],
   controllers: [FileController]
 })
 export class FileModule {}

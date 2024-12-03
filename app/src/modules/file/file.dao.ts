@@ -4,7 +4,7 @@ import { DB, DBSchema } from '../db/db.module'
 import { FileSchema } from '../db/schema'
 
 @Injectable()
-export class FileDao {
+export class FileDAO {
   public constructor(
     @Inject('DB') private readonly db: DB,
     @Inject('DB_SCHEMA') private readonly schema: DBSchema

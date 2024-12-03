@@ -11,8 +11,9 @@ export interface AppConfig {
   providers: [
     {
       provide: 'CONFIG',
-      useFactory: () =>
-        JSON.parse(readFileSync(join(process.cwd(), 'config.json')).toString())
+      useValue: JSON.parse(
+        readFileSync(join(process.cwd(), 'config.json')).toString()
+      )
     }
   ],
   exports: ['CONFIG']
