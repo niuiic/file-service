@@ -1,5 +1,4 @@
 {
-  "DB_URL": "postgresql://postgres:a@127.0.0.1:5432/file_service",
   "db": {
     "type": "postgresql",
     "host": "127.0.0.1",
