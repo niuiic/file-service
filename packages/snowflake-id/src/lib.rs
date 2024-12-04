@@ -1,8 +1,6 @@
 use js_sys::Date;
 use wasm_bindgen::prelude::*;
 
-const MACHINE_ID: i64 = 1;
-const CLUSTER_ID: i64 = 1;
 const EPOCH: i64 = 1577836800000;
 const TIMESTAMP_LEFT_SHIFT: u32 = 22;
 const CLUSTER_ID_LEFT_SHIFT: u32 = 17;
@@ -11,6 +9,8 @@ const SEQUENCE_MASK: i64 = 4095;
 
 #[wasm_bindgen]
 pub struct SnowflakeIdGenerator {
+    cluster_id: i64,
+    machine_id: i64,
     last_timestamp: i64,
     sequence: i64,
 }
@@ -18,10 +18,12 @@ pub struct SnowflakeIdGenerator {
 #[wasm_bindgen]
 impl SnowflakeIdGenerator {
     #[wasm_bindgen(constructor)]
-    pub fn new() -> Self {
+    pub fn new(cluster_id: i64, machine_id: i64) -> Self {
         SnowflakeIdGenerator {
             last_timestamp: -1,
             sequence: 0,
+            cluster_id,
+            machine_id,
         }
     }
 
@@ -39,8 +41,8 @@ impl SnowflakeIdGenerator {
         self.last_timestamp = timestamp;
 
         let id = (timestamp << TIMESTAMP_LEFT_SHIFT)
-            | (CLUSTER_ID << CLUSTER_ID_LEFT_SHIFT)
-            | (MACHINE_ID << MACHINE_ID_LEFT_SHIFT)
+            | (self.cluster_id << CLUSTER_ID_LEFT_SHIFT)
+            | (self.machine_id << MACHINE_ID_LEFT_SHIFT)
             | self.sequence;
 
         Ok(id.to_string())

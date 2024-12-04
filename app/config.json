@@ -12,7 +12,9 @@
     "host": "127.0.0.1",
     "port": 6379,
     "username": "",
-    "password": "",
+    "password": "a",
     "db": 0
-  }
+  },
+  "machineId": 1,
+  "clusterId": 1
 }
