@@ -45,6 +45,7 @@ export const files = pgTable('files', {
   size: integer().notNull(),
   createTime: timestamp({ withTimezone: true }).notNull(),
   uploadTime: timestamp({ withTimezone: true }).notNull(),
+  relativePath: varchar({ length: 1024 }).notNull(),
   deleted: boolean().notNull()
 })
 
