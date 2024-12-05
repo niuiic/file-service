@@ -12,10 +12,12 @@ export class FileDAO {
   ) {}
 
   public async queryFileById(id: string): Promise<FileSchema | undefined> {
+    const { files } = this.schema
+
     return this.db
       .select()
-      .from(this.schema.files)
-      .where((file) => eq(file.id, id))
+      .from(files)
+      .where(eq(files.id, id))
       .limit(1)
       .then((files) => files[0])
   }
