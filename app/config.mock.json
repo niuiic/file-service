@@ -1,0 +1,20 @@
+{
+  "db": {
+    "type": "postgresql",
+    "host": "127.0.0.1",
+    "port": 5432,
+    "username": "postgres",
+    "password": "a",
+    "database": "file_service_mock"
+  },
+  "cache": {
+    "type": "redis",
+    "host": "127.0.0.1",
+    "port": 6379,
+    "username": "",
+    "password": "a",
+    "db": 1
+  },
+  "machineId": 1,
+  "clusterId": 1
+}

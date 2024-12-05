@@ -4,6 +4,7 @@
   "scripts": {
     "start": "nest start",
     "start:dev": "nest start --watch",
+    "start:mock": "MODE=mock nest start",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "test": "vitest run",
@@ -11,8 +12,11 @@
     "test:coverage": "vitest run --coverage",
     "build": "tsx build.ts",
     "db:store": "drizzle-kit pull",
+    "db:store:mock": "MODE=mock drizzle-kit pull",
     "db:restore": "drizzle-kit push",
-    "debug": "nest start"
+    "db:restore:mock": "MODE=mock drizzle-kit push",
+    "debug": "nest start",
+    "debug:mock": "MODE=mock nest start"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.12",
