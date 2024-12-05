@@ -7,6 +7,6 @@ export class FileService {
 
   public async hello() {
     const res = await this.dao.queryFileById('1')
-    return res.name
+    return res?.name
   }
 }

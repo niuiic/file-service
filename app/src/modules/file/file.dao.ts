@@ -11,7 +11,7 @@ export class FileDAO {
     @Inject('DB_SCHEMA') private readonly schema: DBSchema
   ) {}
 
-  public async queryFileById(id: string): Promise<FileSchema> {
+  public async queryFileById(id: string): Promise<FileSchema | undefined> {
     return this.db
       .select()
       .from(this.schema.files)
