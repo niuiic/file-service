@@ -3,7 +3,8 @@ import { Global, Module } from '@nestjs/common'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
-import type { AppConfig } from '../config/config.module'
+import type { AppConfig } from '../config/loadConfig'
+import { getDBUrl } from './url'
 
 export type DBSchema = typeof schema
 
@@ -19,7 +20,7 @@ export type DB = NodePgDatabase<DBSchema> & {
       useFactory: (config: AppConfig) =>
         drizzle({
           client: new Pool({
-            connectionString: `${config.db.type}://${config.db.username}:${config.db.password}@${config.db.host}:${config.db.port}/${config.db.database}`,
+            connectionString: getDBUrl(config.db),
             max: 10
           }),
           casing: 'snake_case',

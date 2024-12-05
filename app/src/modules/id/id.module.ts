@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common'
 import { SnowflakeIdGenerator } from 'snowflake-id'
-import type { AppConfig } from '../config/config.module'
+import type { AppConfig } from '../config/loadConfig'
 
 @Global()
 @Module({
