@@ -1,5 +1,5 @@
+import { loadConfig } from '@/share/config'
 import { Global, Module } from '@nestjs/common'
-import { loadConfig } from './loadConfig'
 
 @Global()
 @Module({

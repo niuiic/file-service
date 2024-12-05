@@ -3,8 +3,8 @@ import { Global, Module } from '@nestjs/common'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
-import type { AppConfig } from '../config/loadConfig'
 import { getDBUrl } from './url'
+import type { AppConfig } from '@/share/config'
 
 export type DBSchema = typeof schema
 

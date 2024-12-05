@@ -1,5 +1,5 @@
-import { loadConfig } from '@/modules/config/loadConfig'
 import { getDBUrl } from '@/modules/db/url'
+import { loadConfig } from '@/share/config'
 import { defineConfig } from 'drizzle-kit'
 import { join } from 'path'
 

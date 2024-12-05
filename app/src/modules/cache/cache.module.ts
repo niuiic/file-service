@@ -1,5 +1,5 @@
+import type { AppConfig } from '@/share/config'
 import { Global, Module } from '@nestjs/common'
-import type { AppConfig } from '../config/loadConfig'
 import Redis from 'ioredis'
 
 export type Cache = Redis
