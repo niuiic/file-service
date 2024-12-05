@@ -1,5 +1,24 @@
 # 文件服务
 
+## 预期目标
+
+### 内容
+
+- 单机性能（普通游戏本）
+  - 对于小文件，IOPS 在几百到几千之间，吞吐量为每秒几 MB 到几十 MB。
+  - 对于大文件，最大吞吐量约为 100-125 MB/s，响应时间为毫秒级别。
+  - 支持几十个并发用户进行基本的文件操作。
+- ⚪支持rpc服务
+- ⚪支持高效的二次封装
+
+### 核心
+
+- 稳定
+- 可扩展hook
+- 支持较高并发
+- 避免并发错误
+- 避免重复上传
+
 ## 需求分析
 
 - 增
@@ -15,8 +34,9 @@
   - 在存储服务中移除文件。
 - 查
   - 提供文件临时访问地址。
+  - 提供文件存储相对路径。
   - 提供文件信息，包括文件名、文件大小和创建时间等。
-  - 下载断点续传。
+  - ⚪下载断点续传。
 
 ## 架构设计
 
@@ -26,8 +46,10 @@ architecture-beta
     group file_service(cloud)[File Service]
     service server(server)[Server] in file_service
     service database(database)[Database] in file_service
+    service cache(database)[Cache] in file_service
 
     server:B -- T:database
+    server:T -- B:cache
     server:R -- L:minio
 
     %% s3_service
@@ -44,10 +66,9 @@ architecture-beta
 
 ```mermaid
 classDiagram
-    note for FileServiceController "请求文件分片地址时若已存在相同文件的分片方案，则返回现有分片信息。\n上传文件时若已存在相同内容的文件，仍新增记录。"
+    note for FileServiceController "请求文件分片地址时若已存在相同文件的分片方案，则返回现有分片信息。<br>上传文件时若已存在相同内容的文件，仍新增记录。"
     FileServiceController ..> FileInfo
     FileServiceController ..> FileChunk
-    FileServiceController ..> FileUrl
     class FileServiceController {
         %% create
         +uploadFileByBlob(fileData: blob, fileHash: string, fileName: string) fileInfo
@@ -58,8 +79,8 @@ classDiagram
         %% delete
         +removeFile(fileId: string)
         %% query
-        +queryFileInfo(fileId: string) fileInfo
-        +queryFileUrls(fileIds: string[]) FileUrl[]
+        +queryFileInfo(fileId: string, withUrl: boolean) fileInfo
+        +queryFilesInfo(fileIds: string[]: withUrl: boolean) fileInfo[]
         +isFileUploaded(fileHash: string) boolean
     }
 
@@ -69,19 +90,13 @@ classDiagram
         +name: string
         +size: number
         +uploadTime: Date
+        +relativePath: string
+        +url: string | undefined
     }
 
     class FileChunk {
         +index: number
         +uploaded: boolean
-    }
-
-    class FileUrl {
-        +url: string
-        +id: string
-        +name: string
-        +size: number
-        +uploadTime: Date
     }
 ```
 
@@ -96,6 +111,7 @@ erDiagram
         int size "以字节为单位"
         timestamp create_time
         timestamp upload_time
+        varchar(1024) relative_path
         boolean deleted
     }
 
