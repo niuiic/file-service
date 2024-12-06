@@ -2,9 +2,8 @@
   "name": "app",
   "version": "0.1.0",
   "scripts": {
-    "start": "nest start",
     "start:dev": "nest start --watch",
-    "start:mock": "MODE=mock nest start",
+    "start:mock": "MODE=mock nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "test": "vitest run",

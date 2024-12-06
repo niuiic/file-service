@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { eq } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import type { DBSchema } from '../db/db.module'
 import type { DB } from '../db/db.module'
 import type { FileSchema } from '../db/schema'
@@ -19,6 +19,23 @@ export class FileDAO {
       .from(fileSchema)
       .where(eq(fileSchema.id, id))
       .limit(1)
-      .then((files) => files[0])
+      .then((x) => x[0])
+  }
+
+  public async queryFilesById(ids: string[]): Promise<FileSchema[]> {
+    const { fileSchema } = this.schema
+
+    return this.db.select().from(fileSchema).where(inArray(fileSchema.id, ids))
+  }
+
+  public async hasFileWithHash(hash: string): Promise<boolean> {
+    const { fileSchema } = this.schema
+
+    return this.db
+      .select()
+      .from(fileSchema)
+      .where(eq(fileSchema.hash, hash))
+      .limit(1)
+      .then((x) => x.length > 0)
   }
 }
