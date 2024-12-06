@@ -23,7 +23,7 @@ const customBigint = customType<{
   }
 })
 
-export const chunks = pgTable(
+export const chunkSchema = pgTable(
   'chunks',
   {
     index: integer().notNull(),
@@ -36,9 +36,9 @@ export const chunks = pgTable(
   (table) => [{ pk: primaryKey({ columns: [table.index, table.fileHash] }) }]
 )
 
-export type ChunkSchema = typeof chunks.$inferInsert
+export type ChunkSchema = typeof chunkSchema.$inferInsert
 
-export const files = pgTable('files', {
+export const fileSchema = pgTable('files', {
   id: customBigint().primaryKey(),
   name: varchar({ length: 255 }).notNull(),
   hash: varchar({ length: 32 }).notNull(),
@@ -49,4 +49,4 @@ export const files = pgTable('files', {
   deleted: boolean().notNull()
 })
 
-export type FileSchema = typeof files.$inferInsert
+export type FileSchema = typeof fileSchema.$inferInsert
