@@ -1,8 +1,7 @@
 import { readFileSync } from 'fs'
-import { join } from 'path'
 import { parse } from 'json-bigint'
+import { join } from 'path'
 import { z } from 'zod'
-import { isMockMode } from '@/share/mode'
 
 const appConfigSchema = z.object({
   db: z.object({
@@ -27,13 +26,12 @@ const appConfigSchema = z.object({
 
 export type AppConfig = z.infer<typeof appConfigSchema>
 
-export const loadConfig = (): AppConfig => {
-  const config = parse(
-    readFileSync(
-      join(process.cwd(), isMockMode() ? 'config.mock.json' : 'config.json')
-    ).toString()
-  )
+export const loadConfig = (configPath: string): AppConfig => {
+  const config = parse(readFileSync(configPath).toString())
   config.clusterId = BigInt(config.clusterId)
   config.machineId = BigInt(config.machineId)
   return appConfigSchema.parse(config)
 }
+
+export const configPath = join(process.cwd(), 'config.json')
+export const configPathMock = join(process.cwd(), 'config.mock.json')

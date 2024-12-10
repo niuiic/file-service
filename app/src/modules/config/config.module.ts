@@ -1,14 +1,20 @@
 import { loadConfig } from '@/share/config'
+import type { DynamicModule } from '@nestjs/common'
 import { Global, Module } from '@nestjs/common'
 
 @Global()
-@Module({
-  providers: [
-    {
-      provide: 'CONFIG',
-      useFactory: loadConfig
+@Module({})
+export class ConfigModule {
+  static forRoot(configPath: string): DynamicModule {
+    return {
+      module: ConfigModule,
+      providers: [
+        {
+          provide: 'CONFIG',
+          useFactory: () => loadConfig(configPath)
+        }
+      ],
+      exports: ['CONFIG']
     }
-  ],
-  exports: ['CONFIG']
-})
-export class ConfigModule {}
+  }
+}
