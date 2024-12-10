@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { eq, inArray } from 'drizzle-orm'
-import type { DBSchema } from '../db/db.module'
-import type { DB } from '../db/db.module'
+import type { DBSchema } from '../db/module'
+import type { DB } from '../db/module'
 import type { FileSchema } from '../db/schema'
 
 @Injectable()

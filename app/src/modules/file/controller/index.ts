@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Inject, Param, Post } from '@nestjs/common'
-import { FileService } from './file.service'
-import type { BatchQueryDTO } from './file.dto'
-import { batchQueryDTO } from './file.dto'
 import { ZodValidationPipe } from '@/share/validate'
+import type { BatchQueryDTO } from '../dto'
+import { batchQueryDTO } from '../dto'
+import { FileService } from '../service'
 
 @Controller('file')
 export class FileController {

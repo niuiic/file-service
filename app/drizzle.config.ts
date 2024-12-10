@@ -1,9 +1,10 @@
 import { getDBUrl } from '@/modules/db/url'
-import { loadConfig } from '@/share/config'
+import { configPath, configPathMock, loadConfig } from '@/share/config'
+import { isMockMode } from '@/share/mode'
 import { defineConfig } from 'drizzle-kit'
 import { join } from 'path'
 
-const config = loadConfig()
+const config = loadConfig(isMockMode() ? configPathMock : configPath)
 
 export default defineConfig({
   dialect: config.db.type as any,

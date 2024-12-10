@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { Test } from '@nestjs/testing'
-import { FileDAO } from './file.dao'
-import { FileService } from './file.service'
-import { FileController } from './file.controller'
-import { DBModule } from '../db/db.module'
-import { ConfigModule } from '../config/config.module'
 import { configPathMock } from '@/share/config'
+import { ConfigModule } from '@/modules/config/module'
+import { DBModule } from '@/modules/db/module'
+import { FileController } from '.'
+import { FileDAO } from '../dao'
+import { FileService } from '../service'
 
 describe('file controller', () => {
   let fileController: FileController

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { FileDAO } from './file.dao'
+import { FileDAO } from './dao'
 
 @Injectable()
 export class FileService {
