@@ -8,19 +8,17 @@ import type { FileSchema } from '@/modules/db/schema'
 // % controller %
 @Controller('file/query')
 export class FileQueryController {
-  public constructor(
-    @Inject(FileService) private readonly fileService: FileService
-  ) {}
+  constructor(@Inject(FileService) private readonly fileService: FileService) {}
 
   @Get('single')
-  public queryFileById(
+  queryFileById(
     @Query('id', new ZodValidationPipe(() => fileIdDTO)) id: FileIdDTO
   ) {
     return queryFileById(id, this.fileService)
   }
 
   @Post('batch')
-  public queryFilesById(
+  queryFilesById(
     @Body(new ZodValidationPipe(() => fileIdsDTO)) ids: FileIdsDTO
   ) {
     return queryFilesById(ids, this.fileService)
