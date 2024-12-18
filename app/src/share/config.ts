@@ -20,6 +20,10 @@ const appConfigSchema = z.object({
     password: z.string(),
     db: z.number()
   }),
+  upload: z.object({
+    maxBlobSize: z.number(),
+    maxChunkSize: z.number()
+  }),
   clusterId: z.bigint(),
   machineId: z.bigint()
 })
