@@ -5,21 +5,21 @@ import type z from 'zod'
 import { FileService } from '../service'
 
 // % controller %
-@Controller('file/remove')
-export class FileRemoveController {
+@Controller('file/delete')
+export class FileDeleteController {
   constructor(@Inject(FileService) private readonly fileService: FileService) {}
 
   @Post('/')
-  async removeFile(
+  async deleteFile(
     @Body(new ZodValidationPipe(() => fileIdDTO)) fileId: FileIdDTO
   ) {
-    return removeFile(fileId, this.fileService)
+    return deleteFile(fileId, this.fileService)
   }
 }
 
-// % removeFile %
-const removeFile = async (fileId: FileIdDTO, fileService: FileService) => {
-  return fileService.removeFileById(fileId)
+// % deleteFile %
+const deleteFile = async (fileId: FileIdDTO, fileService: FileService) => {
+  return fileService.deleteFileById(fileId)
 }
 
 const fileIdDTO = idString()

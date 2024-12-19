@@ -77,7 +77,7 @@ classDiagram
         +uploadFileChunk(chunkData: blob, chunkIndex: number, chunkHash: string)
         +mergeFileChunks(fileHash: string, fileName: string) fileInfo
         %% delete
-        +removeFile(fileId: string)
+        +deleteFile(fileId: string)
         %% query
         +queryFileInfo(fileId: string, withUrl: boolean) fileInfo
         +queryFilesInfo(fileIds: string[]: withUrl: boolean) fileInfo[]
@@ -297,7 +297,7 @@ flowchart LR
     finish(结束)
 ```
 
-### removeFile
+### deleteFile
 
 ```mermaid
 flowchart LR

@@ -109,8 +109,8 @@ export class FileService {
     })
   }
 
-  // %% removeFileById %%
-  async removeFileById(fileId: string) {
+  // %% deleteFileById %%
+  async deleteFileById(fileId: string) {
     const file = await this.queryFileById(fileId)
     if (!file) {
       return
@@ -118,7 +118,7 @@ export class FileService {
 
     const files = await this.dao.queryFilesByHash(file.hash)
     if (files.length === 1) {
-      await this.s3.removeFile(file.relativePath)
+      await this.s3.deleteFile(file.relativePath)
     }
 
     return this.dao.deleteFileById(fileId)
