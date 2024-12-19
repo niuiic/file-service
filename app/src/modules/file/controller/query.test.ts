@@ -1,26 +1,18 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, describe, test } from 'vitest'
 import { Test } from '@nestjs/testing'
-import { configPathMock } from '@/share/config'
-import { ConfigModule } from '@/modules/config/module'
-import { DBModule } from '@/modules/db/module'
 import { FileQueryController } from './query'
-import { FileDAO } from '../dao'
-import { FileService } from '../service'
+import { AppModule } from '@/app.module'
 
-describe('file controller', () => {
-  let fileController: FileQueryController
+describe('file query controller', () => {
+  let controller: FileQueryController
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [DBModule, ConfigModule.forRoot(configPathMock)],
-      controllers: [FileQueryController],
-      providers: [FileDAO, FileService]
+      imports: [AppModule.forRoot(true)]
     }).compile()
-    fileController = moduleRef.get(FileQueryController)
+    controller = moduleRef.get(FileQueryController)
   })
 
-  it('test', () =>
-    fileController
-      .queryFileById('188273635378734612')
-      .then((x) => expect(x).not.toBeUndefined()))
+  // %% queryFileById %%
+  test('queryFileById', () => controller.queryFileById('188273635378734612'))
 })

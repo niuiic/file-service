@@ -23,6 +23,13 @@ export class FileQueryController {
   ) {
     return queryFilesById(ids, this.fileService)
   }
+
+  @Get('exist')
+  isFileUploaded(
+    @Query('hash', new ZodValidationPipe(() => fileHashDTO)) hash: FileHashDTO
+  ) {
+    return isFileUploaded(hash, this.fileService)
+  }
 }
 
 // % queryFileById %
@@ -44,3 +51,10 @@ const queryFilesById = (
 
 const fileIdsDTO = z.array(idString())
 type FileIdsDTO = z.infer<typeof fileIdsDTO>
+
+// % isFileUploaded %
+const isFileUploaded = (hash: FileHashDTO, fileService: FileService) =>
+  fileService.queryFileByHash(hash).then(Boolean)
+
+const fileHashDTO = z.string()
+type FileHashDTO = z.infer<typeof fileHashDTO>

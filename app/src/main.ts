@@ -4,10 +4,11 @@ import { FastifyAdapter } from '@nestjs/platform-fastify'
 import { AppModule } from './app.module'
 import multipart from '@fastify/multipart'
 import type { AppConfig } from './share/config'
+import { isMockMode } from './share/mode'
 
 const bootstrap = async () => {
   const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
+    AppModule.forRoot(isMockMode()),
     new FastifyAdapter()
   )
   await app.register(multipart as any, {

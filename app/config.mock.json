@@ -15,6 +15,14 @@
     "password": "a",
     "db": 1
   },
+  "s3": {
+    "endPoint": "127.0.0.1",
+    "port": 9000,
+    "useSSL": false,
+    "accessKey": "minioadmin",
+    "secretKey": "minioadmin",
+    "bucket": "file-service-mock"
+  },
   "upload": {
     "maxBlobSize": 10485760,
     "chunkSize": 5242880

@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { FileDAO } from './dao'
-import type { AppConfig } from '@/share/config'
 import { isNil } from '@/share/isNil'
 import type { FileSchema } from '../db/schema'
+import type { S3Service } from '../s3/service/s3'
 
 // % service %
 @Injectable()
 export class FileService {
   constructor(
     @Inject(FileDAO) private readonly dao: FileDAO,
-    @Inject('CONFIG') private readonly config: AppConfig
+    @Inject('S3') private readonly s3: S3Service
   ) {}
 
   // %% queryFilesById %%
@@ -20,6 +20,11 @@ export class FileService {
   // %% queryFilesById %%
   async queryFilesById(ids: string[]): Promise<FileSchema[]> {
     return this.dao.queryFilesById(ids)
+  }
+
+  // %% queryFileByHash %%
+  async queryFileByHash(hash: string): Promise<FileSchema | undefined> {
+    return this.dao.queryFilesByHash(hash)
   }
 
   // %% uploadFileByBlob %%
@@ -39,6 +44,21 @@ export class FileService {
         relativePath: file.relativePath
       })
     }
+
+    const relativePath = await this.s3.uploadFileByBlob(
+      fileData,
+      fileName,
+      fileHash
+    )
+
+    return this.dao.createFile({
+      name: fileName,
+      hash: fileHash,
+      size: fileData.length,
+      uploadTime: new Date(),
+      relativePath,
+      deleted: false
+    })
   }
 
   // %% uploadFileByHash %%

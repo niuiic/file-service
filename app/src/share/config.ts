@@ -20,6 +20,14 @@ const appConfigSchema = z.object({
     password: z.string(),
     db: z.number()
   }),
+  s3: z.object({
+    endPoint: z.string(),
+    port: z.number(),
+    useSSL: z.boolean(),
+    accessKey: z.string(),
+    secretKey: z.string(),
+    bucket: z.string()
+  }),
   upload: z.object({
     maxBlobSize: z.number(),
     chunkSize: z.number()
