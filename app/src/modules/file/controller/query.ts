@@ -3,7 +3,8 @@ import { ZodValidationPipe } from '@/share/validate'
 import { FileService } from '../service'
 import { z } from 'zod'
 import { idString } from '@/share/schema'
-import { toFileInfo, type FileInfo } from './fileInfo'
+import type { FileInfo } from './fileInfo'
+import { toFileInfo } from './fileInfo'
 
 // % controller %
 @Controller('file/query')
@@ -11,54 +12,29 @@ export class FileQueryController {
   // %% constructor %%
   constructor(@Inject(FileService) private readonly fileService: FileService) {}
 
-  @Get('single')
   // %% queryFileById %%
-  queryFileById(
-    @Query('id', new ZodValidationPipe(() => fileIdDTO)) id: FileIdDTO
-  ) {
-    return queryFileById(id, this.fileService)
+  @Get('single')
+  async queryFileById(
+    @Query('id', new ZodValidationPipe(idString())) id: string
+  ): Promise<FileInfo | undefined> {
+    return this.fileService
+      .queryFileById(id)
+      .then((x) => (x ? toFileInfo(x) : undefined))
   }
 
-  @Post('batch')
   // %% queryFilesById %%
-  queryFilesById(
-    @Body(new ZodValidationPipe(() => fileIdsDTO)) ids: FileIdsDTO
-  ) {
-    return queryFilesById(ids, this.fileService)
+  @Post('batch')
+  async queryFilesById(
+    @Body(new ZodValidationPipe(z.array(idString()))) ids: string[]
+  ): Promise<FileInfo[]> {
+    return this.fileService.queryFilesById(ids).then((x) => x.map(toFileInfo))
   }
 
-  @Get('exist')
   // %% isFileUploaded %%
-  isFileUploaded(
-    @Query('hash', new ZodValidationPipe(() => fileHashDTO)) hash: FileHashDTO
-  ) {
-    return isFileUploaded(hash, this.fileService)
+  @Get('exist')
+  async isFileUploaded(
+    @Query('hash', new ZodValidationPipe(idString())) hash: string
+  ): Promise<boolean> {
+    return this.fileService.queryFileByHash(hash).then(Boolean)
   }
 }
-
-// % queryFileById %
-const queryFileById = (
-  id: FileIdDTO,
-  fileService: FileService
-): Promise<FileInfo | undefined> =>
-  fileService.queryFileById(id).then((x) => (x ? toFileInfo(x) : undefined))
-
-const fileIdDTO = idString()
-type FileIdDTO = z.infer<typeof fileIdDTO>
-
-// % queryFilesById %
-const queryFilesById = (
-  ids: FileIdsDTO,
-  fileService: FileService
-): Promise<FileInfo[] | undefined> =>
-  fileService.queryFilesById(ids).then((files) => files.map(toFileInfo))
-
-const fileIdsDTO = z.array(idString())
-type FileIdsDTO = z.infer<typeof fileIdsDTO>
-
-// % isFileUploaded %
-const isFileUploaded = (hash: FileHashDTO, fileService: FileService) =>
-  fileService.queryFileByHash(hash).then(Boolean)
-
-const fileHashDTO = z.string()
-type FileHashDTO = z.infer<typeof fileHashDTO>

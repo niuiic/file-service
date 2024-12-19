@@ -1,7 +1,6 @@
 import { idString } from '@/share/schema'
 import { ZodValidationPipe } from '@/share/validate'
 import { Body, Controller, Inject, Post } from '@nestjs/common'
-import type z from 'zod'
 import { FileService } from '../service'
 
 // % controller %
@@ -10,19 +9,9 @@ export class FileDeleteController {
   // %% constructor %%
   constructor(@Inject(FileService) private readonly fileService: FileService) {}
 
-  @Post('/')
   // %% deleteFile %%
-  async deleteFile(
-    @Body(new ZodValidationPipe(() => fileIdDTO)) fileId: FileIdDTO
-  ) {
-    return deleteFile(fileId, this.fileService)
+  @Post('/')
+  async deleteFile(@Body(new ZodValidationPipe(idString())) fileId: string) {
+    return this.fileService.deleteFileById(fileId)
   }
 }
-
-// % deleteFile %
-const deleteFile = async (fileId: FileIdDTO, fileService: FileService) => {
-  return fileService.deleteFileById(fileId)
-}
-
-const fileIdDTO = idString()
-type FileIdDTO = z.infer<typeof fileIdDTO>

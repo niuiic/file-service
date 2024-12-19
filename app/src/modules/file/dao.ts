@@ -5,6 +5,7 @@ import type { DB } from '../db/module'
 import { fileSchema, type FileSchema } from '../db/schema'
 import type { SnowflakeIdGenerator } from 'snowflake-id'
 
+// % dao %
 @Injectable()
 export class FileDAO {
   // %% constructor %%

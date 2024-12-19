@@ -23,67 +23,47 @@ export class FileUploadController {
     @Inject(FileService) private readonly fileService: FileService
   ) {}
 
-  @Post('blob')
   // %% uploadFileByBlob %%
-  async uploadFileByBlob(@Req() req: FastifyRequest) {
-    return uploadFileByBlob(
-      req,
-      this.fileService,
-      this.config.upload.maxBlobSize
-    )
+  @Post('blob')
+  async uploadFileByBlob(@Req() req: FastifyRequest): Promise<FileInfo> {
+    const file = await req.file()
+    if (!file) {
+      throw new BadRequestException('未收到文件')
+    }
+
+    const maxBlobSize = this.config.upload.maxBlobSize
+    const fileData = await file.toBuffer()
+    if (fileData.length > maxBlobSize) {
+      throw new BadRequestException(
+        `文件大小超过限制，最大允许上传${(maxBlobSize / 1024 / 1024).toFixed(0)}MB`
+      )
+    }
+
+    const fileHash = (file.fields.fileHash as MultipartValue<string>)?.value
+    if (!(typeof fileHash === 'string')) {
+      throw new BadRequestException('文件hash值错误')
+    }
+
+    return this.fileService
+      .uploadFileByBlob(fileData, fileHash, file.filename)
+      .then(toFileInfo)
   }
 
-  @Post('hash')
   // %% uploadFileByHash %%
+  @Post('hash')
   async uploadFileByHash(
-    @Body(new ZodValidationPipe(() => fileInfoDTO)) fileInfo: FileInfoDTO
+    @Body(new ZodValidationPipe(FileUploadController.fileInfoDTO))
+    fileInfo: z.infer<typeof FileUploadController.fileInfoDTO>
   ) {
-    return uploadFileByHash(fileInfo, this.fileService)
+    return this.fileService
+      .uploadFileByHash({
+        fileHash: fileInfo.fileHash,
+        fileName: fileInfo.fileName
+      })
+      .then(toFileInfo)
   }
+  private static fileInfoDTO = z.object({
+    fileHash: z.string(),
+    fileName: z.string()
+  })
 }
-
-// % uploadFileByBlob %
-const uploadFileByBlob = async (
-  req: FastifyRequest,
-  fileService: FileService,
-  maxBlobSize: number
-): Promise<FileInfo> => {
-  const file = await req.file()
-  if (!file) {
-    throw new BadRequestException('未收到文件')
-  }
-
-  const fileData = await file.toBuffer()
-  if (fileData.length > maxBlobSize) {
-    throw new BadRequestException(
-      `文件大小超过限制，最大允许上传${(maxBlobSize / 1024 / 1024).toFixed(0)}MB`
-    )
-  }
-
-  const fileHash = (file.fields.fileHash as MultipartValue<string>)?.value
-  if (!(typeof fileHash === 'string')) {
-    throw new BadRequestException('文件hash值错误')
-  }
-
-  return fileService
-    .uploadFileByBlob(fileData, fileHash, file.filename)
-    .then(toFileInfo)
-}
-
-// % uploadFileByHash %
-const uploadFileByHash = async (
-  fileInfo: FileInfoDTO,
-  fileService: FileService
-) =>
-  fileService
-    .uploadFileByHash({
-      fileHash: fileInfo.fileHash,
-      fileName: fileInfo.fileName
-    })
-    .then(toFileInfo)
-
-const fileInfoDTO = z.object({
-  fileHash: z.string(),
-  fileName: z.string()
-})
-type FileInfoDTO = z.infer<typeof fileInfoDTO>
