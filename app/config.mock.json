@@ -17,7 +17,7 @@
   },
   "upload": {
     "maxBlobSize": 10485760,
-    "maxChunkSize": 10485760
+    "chunkSize": 5242880
   },
   "machineId": 1,
   "clusterId": 1

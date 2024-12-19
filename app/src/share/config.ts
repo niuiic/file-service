@@ -22,7 +22,7 @@ const appConfigSchema = z.object({
   }),
   upload: z.object({
     maxBlobSize: z.number(),
-    maxChunkSize: z.number()
+    chunkSize: z.number()
   }),
   clusterId: z.bigint(),
   machineId: z.bigint()

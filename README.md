@@ -73,7 +73,7 @@ classDiagram
         %% create
         +uploadFileByBlob(fileData: blob, fileHash: string, fileName: string) fileInfo
         +uploadFileByHash(fileHash: string, fileName: string) fileInfo
-        +requestFileChunks(fileHash: string, preferChunkCount: number) fileChunk[]
+        +requestFileChunks(fileHash: string, fileSize: number) fileChunk[]
         +uploadFileChunk(chunkData: blob, chunkIndex: number, chunkHash: string)
         +mergeFileChunks(fileHash: string, fileName: string) fileInfo
         %% delete
@@ -91,7 +91,6 @@ classDiagram
         +size: number
         +uploadTime: Date
         +relativePath: string
-        +url: string | undefined
     }
 
     class FileChunk {
