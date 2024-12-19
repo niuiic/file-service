@@ -7,8 +7,8 @@ import type { FileDAO } from '../dao'
 @Injectable()
 export class FileUploadService {
   constructor(
-    private readonly fileDAO: FileDAO,
-    private readonly s3: S3Service
+    private fileDAO: FileDAO,
+    private s3: S3Service
   ) {}
 
   // %% uploadFileByBlob %%

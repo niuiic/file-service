@@ -8,9 +8,9 @@ import { join } from 'path'
 export class S3Service {
   // %% constructor %%
   constructor(
-    @Inject('CLIENT') private readonly client: S3Client,
-    @Inject('CONFIG') private readonly config: AppConfig,
-    @Inject('ID') private readonly idGenerator: SnowflakeIdGenerator
+    @Inject('CLIENT') private client: S3Client,
+    @Inject('CONFIG') private config: AppConfig,
+    @Inject('ID') private idGenerator: SnowflakeIdGenerator
   ) {}
 
   // %% uploadFileByBlob %%

@@ -10,7 +10,7 @@ import type { FileQueryService } from '../service/query'
 @Controller('file/query')
 export class FileQueryController {
   // %% constructor %%
-  constructor(private readonly fileService: FileQueryService) {}
+  constructor(private fileService: FileQueryService) {}
 
   // %% queryFileById %%
   @Get('single')

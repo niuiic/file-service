@@ -6,9 +6,9 @@ import type { S3Service } from '@/modules/s3/service/s3'
 @Injectable()
 export class FileDeleteService {
   constructor(
-    private readonly fileQueryService: FileQueryService,
-    private readonly fileDAO: FileDAO,
-    private readonly s3: S3Service
+    private fileQueryService: FileQueryService,
+    private fileDAO: FileDAO,
+    private s3: S3Service
   ) {}
 
   // %% deleteFileById %%

@@ -7,7 +7,7 @@ import type { FileDeleteService } from '../service/delete'
 @Controller('file/delete')
 export class FileDeleteController {
   // %% constructor %%
-  constructor(private readonly fileDeleteService: FileDeleteService) {}
+  constructor(private fileDeleteService: FileDeleteService) {}
 
   // %% deleteFile %%
   @Post('/')

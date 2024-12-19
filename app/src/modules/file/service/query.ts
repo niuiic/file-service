@@ -6,7 +6,7 @@ import type { FileDAO } from '../dao'
 @Injectable()
 export class FileQueryService {
   // %% constructor %%
-  constructor(private readonly fileDAO: FileDAO) {}
+  constructor(private fileDAO: FileDAO) {}
 
   // %% queryFileById %%
   async queryFileById(id: string): Promise<FileSchema | undefined> {
