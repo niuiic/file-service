@@ -1,16 +1,16 @@
-import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common'
+import { Body, Controller, Get, Post, Query } from '@nestjs/common'
 import { ZodValidationPipe } from '@/share/validate'
-import { FileService } from '../service'
 import { z } from 'zod'
 import { idString } from '@/share/schema'
 import type { FileInfo } from './fileInfo'
 import { toFileInfo } from './fileInfo'
+import type { FileQueryService } from '../service/query'
 
 // % controller %
 @Controller('file/query')
 export class FileQueryController {
   // %% constructor %%
-  constructor(@Inject(FileService) private readonly fileService: FileService) {}
+  constructor(private readonly fileService: FileQueryService) {}
 
   // %% queryFileById %%
   @Get('single')

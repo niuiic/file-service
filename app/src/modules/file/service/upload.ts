@@ -1,32 +1,15 @@
-import { Inject, Injectable } from '@nestjs/common'
-import { FileDAO } from './dao'
+import { Injectable } from '@nestjs/common'
+import type { S3Service } from '@/modules/s3/service/s3'
+import type { FileSchema } from '@/modules/db/schema'
 import { isNil } from '@/share/isNil'
-import type { FileSchema } from '../db/schema'
-import type { S3Service } from '../s3/service/s3'
+import type { FileDAO } from '../dao'
 
-// % service %
 @Injectable()
-export class FileService {
-  // %% constructor %%
+export class FileUploadService {
   constructor(
-    @Inject(FileDAO) private readonly dao: FileDAO,
-    @Inject('S3') private readonly s3: S3Service
+    private readonly fileDAO: FileDAO,
+    private readonly s3: S3Service
   ) {}
-
-  // %% queryFileById %%
-  async queryFileById(id: string): Promise<FileSchema | undefined> {
-    return this.dao.queryFileById(id)
-  }
-
-  // %% queryFilesById %%
-  async queryFilesById(ids: string[]): Promise<FileSchema[]> {
-    return this.dao.queryFilesById(ids)
-  }
-
-  // %% queryFileByHash %%
-  async queryFileByHash(hash: string): Promise<FileSchema[] | undefined> {
-    return this.dao.queryFilesByHash(hash)
-  }
 
   // %% uploadFileByBlob %%
   async uploadFileByBlob(
@@ -34,7 +17,7 @@ export class FileService {
     fileHash: string,
     fileName: string
   ): Promise<FileSchema> {
-    const files = await this.dao.queryFilesByHash(fileHash)
+    const files = await this.fileDAO.queryFilesByHash(fileHash)
     if (files.length > 0) {
       return this.uploadFileByHash({
         fileHash,
@@ -52,7 +35,7 @@ export class FileService {
       fileHash
     )
 
-    return this.dao.createFile({
+    return this.fileDAO.createFile({
       name: fileName,
       hash: fileHash,
       size: fileData.length,
@@ -79,7 +62,7 @@ export class FileService {
     relativePath?: string
   }): Promise<FileSchema> {
     if (!skipCheck) {
-      const files = await this.dao.queryFilesByHash(fileHash)
+      const files = await this.fileDAO.queryFilesByHash(fileHash)
       if (files.length === 0) {
         throw new Error('文件未上传')
       }
@@ -100,7 +83,7 @@ export class FileService {
       throw new Error('未指定文件相对路径')
     }
 
-    return this.dao.createFile({
+    return this.fileDAO.createFile({
       name: fileName,
       hash: fileHash,
       size: fileSize,
@@ -108,20 +91,5 @@ export class FileService {
       relativePath,
       deleted: false
     })
-  }
-
-  // %% deleteFileById %%
-  async deleteFileById(fileId: string) {
-    const file = await this.queryFileById(fileId)
-    if (!file) {
-      return
-    }
-
-    const files = await this.dao.queryFilesByHash(file.hash)
-    if (files.length === 1) {
-      await this.s3.deleteFile(file.relativePath)
-    }
-
-    return this.dao.deleteFileById(fileId)
   }
 }

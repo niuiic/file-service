@@ -8,11 +8,11 @@ import {
   Post,
   Req
 } from '@nestjs/common'
-import { FileService } from '../service'
 import type { FastifyRequest } from 'fastify'
 import { toFileInfo, type FileInfo } from './fileInfo'
 import { ZodValidationPipe } from '@/share/validate'
 import type { MultipartValue } from '@fastify/multipart'
+import type { FileUploadService } from '../service/upload'
 
 // % controller %
 @Controller('file/upload')
@@ -20,7 +20,7 @@ export class FileUploadController {
   // %% constructor %%
   constructor(
     @Inject('CONFIG') private readonly config: AppConfig,
-    @Inject(FileService) private readonly fileService: FileService
+    private readonly fileUploadService: FileUploadService
   ) {}
 
   // %% uploadFileByBlob %%
@@ -44,7 +44,7 @@ export class FileUploadController {
       throw new BadRequestException('文件hash值错误')
     }
 
-    return this.fileService
+    return this.fileUploadService
       .uploadFileByBlob(fileData, fileHash, file.filename)
       .then(toFileInfo)
   }
@@ -55,7 +55,7 @@ export class FileUploadController {
     @Body(new ZodValidationPipe(FileUploadController.fileInfoDTO))
     fileInfo: z.infer<typeof FileUploadController.fileInfoDTO>
   ) {
-    return this.fileService
+    return this.fileUploadService
       .uploadFileByHash({
         fileHash: fileInfo.fileHash,
         fileName: fileInfo.fileName

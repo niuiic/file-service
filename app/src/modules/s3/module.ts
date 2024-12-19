@@ -6,15 +6,12 @@ import { newClient } from './service/client'
 @Module({
   providers: [
     {
-      provide: 'S3',
-      useClass: S3Service
-    },
-    {
       provide: 'CLIENT',
       useFactory: newClient,
       inject: ['CONFIG']
-    }
+    },
+    S3Service
   ],
-  exports: ['S3']
+  exports: [S3Service]
 })
 export class S3Module {}
