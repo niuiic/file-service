@@ -8,7 +8,11 @@ import { FileQueryService } from './service/query'
 import { FileUploadService } from './service/upload'
 
 @Module({
-  providers: [FileDAO, FileQueryService, FileUploadService, FileDeleteService],
-  controllers: [FileQueryController, FileUploadController, FileDeleteController]
+  controllers: [
+    FileQueryController,
+    FileUploadController,
+    FileDeleteController
+  ],
+  providers: [FileDAO, FileQueryService, FileUploadService, FileDeleteService]
 })
 export class FileModule {}

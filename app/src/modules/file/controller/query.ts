@@ -10,14 +10,14 @@ import type { FileQueryService } from '../service/query'
 @Controller('file/query')
 export class FileQueryController {
   // %% constructor %%
-  constructor(private fileService: FileQueryService) {}
+  constructor(private fileQueryService: FileQueryService) {}
 
   // %% queryFileById %%
   @Get('single')
   async queryFileById(
     @Query('id', new ZodValidationPipe(idString())) id: string
   ): Promise<FileInfo | undefined> {
-    return this.fileService
+    return this.fileQueryService
       .queryFileById(id)
       .then((x) => (x ? toFileInfo(x) : undefined))
   }
@@ -27,7 +27,9 @@ export class FileQueryController {
   async queryFilesById(
     @Body(new ZodValidationPipe(z.array(idString()))) ids: string[]
   ): Promise<FileInfo[]> {
-    return this.fileService.queryFilesById(ids).then((x) => x.map(toFileInfo))
+    return this.fileQueryService
+      .queryFilesById(ids)
+      .then((x) => x.map(toFileInfo))
   }
 
   // %% isFileUploaded %%
@@ -35,6 +37,6 @@ export class FileQueryController {
   async isFileUploaded(
     @Query('hash', new ZodValidationPipe(idString())) hash: string
   ): Promise<boolean> {
-    return this.fileService.queryFileByHash(hash).then(Boolean)
+    return this.fileQueryService.queryFileByHash(hash).then(Boolean)
   }
 }

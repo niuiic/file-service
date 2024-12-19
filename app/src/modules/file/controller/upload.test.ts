@@ -62,7 +62,8 @@ describe('file upload controller', () => {
           expect(newFileInfo.name).not.toBe(fileInfo.name)
         })
 
-    await uploadFile().then(uploadSameFile)
+    await uploadFile()
+    await uploadSameFile()
   })
 
   // %% uploadFileByHash %%
