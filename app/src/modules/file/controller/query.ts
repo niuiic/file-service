@@ -3,7 +3,7 @@ import { ZodValidationPipe } from '@/share/validate'
 import { FileService } from '../service'
 import { z } from 'zod'
 import { idString } from '@/share/schema'
-import type { FileSchema } from '@/modules/db/schema'
+import { toFileInfo, type FileInfo } from './fileInfo'
 
 // % controller %
 @Controller('file/query')
@@ -29,9 +29,9 @@ export class FileQueryController {
 const queryFileById = (
   id: FileIdDTO,
   fileService: FileService
-): Promise<FileSchema | undefined> => {
-  return fileService.queryFileById(id)
-}
+): Promise<FileInfo | undefined> =>
+  fileService.queryFileById(id).then((x) => (x ? toFileInfo(x) : undefined))
+
 const fileIdDTO = idString()
 type FileIdDTO = z.infer<typeof fileIdDTO>
 
@@ -39,8 +39,8 @@ type FileIdDTO = z.infer<typeof fileIdDTO>
 const queryFilesById = (
   ids: FileIdsDTO,
   fileService: FileService
-): Promise<FileSchema[] | undefined> => {
-  return fileService.queryFilesById(ids)
-}
+): Promise<FileInfo[] | undefined> =>
+  fileService.queryFilesById(ids).then((files) => files.map(toFileInfo))
+
 const fileIdsDTO = z.array(idString())
 type FileIdsDTO = z.infer<typeof fileIdsDTO>
