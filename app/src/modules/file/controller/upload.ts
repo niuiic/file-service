@@ -17,12 +17,14 @@ import type { MultipartValue } from '@fastify/multipart'
 // % controller %
 @Controller('file/upload')
 export class FileUploadController {
+  // %% constructor %%
   constructor(
     @Inject('CONFIG') private readonly config: AppConfig,
     @Inject(FileService) private readonly fileService: FileService
   ) {}
 
   @Post('blob')
+  // %% uploadFileByBlob %%
   async uploadFileByBlob(@Req() req: FastifyRequest) {
     return uploadFileByBlob(
       req,
@@ -32,6 +34,7 @@ export class FileUploadController {
   }
 
   @Post('hash')
+  // %% uploadFileByHash %%
   async uploadFileByHash(
     @Body(new ZodValidationPipe(() => fileInfoDTO)) fileInfo: FileInfoDTO
   ) {

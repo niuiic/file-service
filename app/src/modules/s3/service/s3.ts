@@ -6,12 +6,14 @@ import { join } from 'path'
 
 @Injectable()
 export class S3Service {
+  // %% constructor %%
   constructor(
     @Inject('CLIENT') private readonly client: S3Client,
     @Inject('CONFIG') private readonly config: AppConfig,
     @Inject('ID') private readonly idGenerator: SnowflakeIdGenerator
   ) {}
 
+  // %% uploadFileByBlob %%
   async uploadFileByBlob(fileData: Buffer, fileName: string, fileHash: string) {
     const relativePath = join(this.idGenerator.getId(), fileName)
 
@@ -29,6 +31,7 @@ export class S3Service {
     return join(this.config.s3.bucket, relativePath)
   }
 
+  // %% deleteFile %%
   async deleteFile(relativePath: string) {
     const [bucket, ...paths] = relativePath.split('/')
     const filePath = paths.join('/')

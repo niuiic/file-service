@@ -7,12 +7,13 @@ import type { S3Service } from '../s3/service/s3'
 // % service %
 @Injectable()
 export class FileService {
+  // %% constructor %%
   constructor(
     @Inject(FileDAO) private readonly dao: FileDAO,
     @Inject('S3') private readonly s3: S3Service
   ) {}
 
-  // %% queryFilesById %%
+  // %% queryFileById %%
   async queryFileById(id: string): Promise<FileSchema | undefined> {
     return this.dao.queryFileById(id)
   }

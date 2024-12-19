@@ -7,9 +7,11 @@ import { FileService } from '../service'
 // % controller %
 @Controller('file/delete')
 export class FileDeleteController {
+  // %% constructor %%
   constructor(@Inject(FileService) private readonly fileService: FileService) {}
 
   @Post('/')
+  // %% deleteFile %%
   async deleteFile(
     @Body(new ZodValidationPipe(() => fileIdDTO)) fileId: FileIdDTO
   ) {

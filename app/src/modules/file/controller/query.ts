@@ -8,9 +8,11 @@ import { toFileInfo, type FileInfo } from './fileInfo'
 // % controller %
 @Controller('file/query')
 export class FileQueryController {
+  // %% constructor %%
   constructor(@Inject(FileService) private readonly fileService: FileService) {}
 
   @Get('single')
+  // %% queryFileById %%
   queryFileById(
     @Query('id', new ZodValidationPipe(() => fileIdDTO)) id: FileIdDTO
   ) {
@@ -18,6 +20,7 @@ export class FileQueryController {
   }
 
   @Post('batch')
+  // %% queryFilesById %%
   queryFilesById(
     @Body(new ZodValidationPipe(() => fileIdsDTO)) ids: FileIdsDTO
   ) {
@@ -25,6 +28,7 @@ export class FileQueryController {
   }
 
   @Get('exist')
+  // %% isFileUploaded %%
   isFileUploaded(
     @Query('hash', new ZodValidationPipe(() => fileHashDTO)) hash: FileHashDTO
   ) {
