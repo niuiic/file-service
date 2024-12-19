@@ -23,7 +23,7 @@ export class FileService {
   }
 
   // %% queryFileByHash %%
-  async queryFileByHash(hash: string): Promise<FileSchema | undefined> {
+  async queryFileByHash(hash: string): Promise<FileSchema[] | undefined> {
     return this.dao.queryFilesByHash(hash)
   }
 
@@ -33,15 +33,15 @@ export class FileService {
     fileHash: string,
     fileName: string
   ): Promise<FileSchema> {
-    const file = await this.dao.queryFilesByHash(fileHash)
-    if (file) {
+    const files = await this.dao.queryFilesByHash(fileHash)
+    if (files.length > 0) {
       return this.uploadFileByHash({
         fileHash,
         fileName,
         skipCheck: true,
-        uploadTime: file.uploadTime,
-        fileSize: file.size,
-        relativePath: file.relativePath
+        uploadTime: files[0].uploadTime,
+        fileSize: files[0].size,
+        relativePath: files[0].relativePath
       })
     }
 
@@ -78,13 +78,13 @@ export class FileService {
     relativePath?: string
   }): Promise<FileSchema> {
     if (!skipCheck) {
-      const file = await this.dao.queryFilesByHash(fileHash)
-      if (!file) {
+      const files = await this.dao.queryFilesByHash(fileHash)
+      if (files.length === 0) {
         throw new Error('文件未上传')
       }
-      uploadTime = file.uploadTime
-      fileSize = file.size
-      relativePath = file.relativePath
+      uploadTime = files[0].uploadTime
+      fileSize = files[0].size
+      relativePath = files[0].relativePath
     }
 
     if (!uploadTime) {
@@ -107,5 +107,20 @@ export class FileService {
       relativePath,
       deleted: false
     })
+  }
+
+  // %% removeFileById %%
+  async removeFileById(fileId: string) {
+    const file = await this.queryFileById(fileId)
+    if (!file) {
+      return
+    }
+
+    const files = await this.dao.queryFilesByHash(file.hash)
+    if (files.length === 1) {
+      await this.s3.removeFile(file.relativePath)
+    }
+
+    return this.dao.deleteFileById(fileId)
   }
 }

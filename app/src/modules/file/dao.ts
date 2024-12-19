@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { eq, inArray, and } from 'drizzle-orm'
 import type { DBSchema } from '../db/module'
 import type { DB } from '../db/module'
-import type { FileSchema } from '../db/schema'
+import { fileSchema, type FileSchema } from '../db/schema'
 import type { SnowflakeIdGenerator } from 'snowflake-id'
 
 @Injectable()
@@ -13,6 +13,7 @@ export class FileDAO {
     @Inject('ID') private readonly idGenerator: SnowflakeIdGenerator
   ) {}
 
+  // %% queryFileById %%
   async queryFileById(id: string): Promise<FileSchema | undefined> {
     const { fileSchema } = this.schema
 
@@ -24,6 +25,7 @@ export class FileDAO {
       .then((x) => x[0])
   }
 
+  // %% queryFilesById %%
   async queryFilesById(ids: string[]): Promise<FileSchema[]> {
     const { fileSchema } = this.schema
 
@@ -33,21 +35,27 @@ export class FileDAO {
       .where(and(inArray(fileSchema.id, ids), eq(fileSchema.deleted, false)))
   }
 
-  async queryFilesByHash(hash: string): Promise<FileSchema | undefined> {
+  // %% queryFilesByHash %%
+  async queryFilesByHash(hash: string): Promise<FileSchema[]> {
     const { fileSchema } = this.schema
 
     return this.db
       .select()
       .from(fileSchema)
       .where(and(eq(fileSchema.hash, hash), eq(fileSchema.deleted, false)))
-      .limit(1)
-      .then((x) => x[0])
   }
 
+  // %% hasFileWithHash %%
   async hasFileWithHash(hash: string): Promise<boolean> {
-    return this.queryFilesByHash(hash).then(Boolean)
+    return this.db
+      .select()
+      .from(fileSchema)
+      .where(and(eq(fileSchema.hash, hash), eq(fileSchema.deleted, false)))
+      .limit(1)
+      .then((x) => x.length > 0)
   }
 
+  // %% createFile %%
   async createFile(
     file: Omit<FileSchema, 'id' | 'createTime'>
   ): Promise<FileSchema> {
@@ -63,5 +71,12 @@ export class FileDAO {
       .insert(fileSchema)
       .values(newFile)
       .then(() => newFile)
+  }
+
+  // %% deleteFileById %%
+  async deleteFileById(id: string) {
+    const { fileSchema } = this.schema
+
+    return this.db.delete(fileSchema).where(eq(fileSchema.id, id))
   }
 }

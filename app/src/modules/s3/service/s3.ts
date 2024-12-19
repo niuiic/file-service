@@ -28,4 +28,11 @@ export class S3Service {
 
     return join(this.config.s3.bucket, relativePath)
   }
+
+  async removeFile(relativePath: string) {
+    const [bucket, ...paths] = relativePath.split('/')
+    const filePath = paths.join('/')
+
+    return this.client.removeObject(bucket, filePath)
+  }
 }
