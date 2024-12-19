@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import type { FileSchema } from '@/modules/db/schema'
-import type { FileDAO } from '../dao'
+import { FileDAO } from '../dao'
 
 // % service %
 @Injectable()
 export class FileQueryService {
   // %% constructor %%
-  constructor(private fileDAO: FileDAO) {}
+  constructor(@Inject(FileDAO) private fileDAO: FileDAO) {}
 
   // %% queryFileById %%
   async queryFileById(id: string): Promise<FileSchema | undefined> {

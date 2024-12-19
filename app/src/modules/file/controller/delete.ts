@@ -1,13 +1,15 @@
 import { idString } from '@/share/schema'
 import { ZodValidationPipe } from '@/share/validate'
-import { Body, Controller, Post } from '@nestjs/common'
-import type { FileDeleteService } from '../service/delete'
+import { Body, Controller, Inject, Post } from '@nestjs/common'
+import { FileDeleteService } from '../service/delete'
 
 // % controller %
 @Controller('file/delete')
 export class FileDeleteController {
   // %% constructor %%
-  constructor(private fileDeleteService: FileDeleteService) {}
+  constructor(
+    @Inject(FileDeleteService) private fileDeleteService: FileDeleteService
+  ) {}
 
   // %% deleteFile %%
   @Post('/')

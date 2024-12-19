@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common'
-import type { FileQueryService } from './query'
-import type { FileDAO } from '../dao'
-import type { S3Service } from '@/modules/s3/service/s3'
+import { Inject, Injectable } from '@nestjs/common'
+import { FileQueryService } from './query'
+import { FileDAO } from '../dao'
+import { S3Service } from '@/modules/s3/service/s3'
 
 @Injectable()
 export class FileDeleteService {
   constructor(
-    private fileQueryService: FileQueryService,
-    private fileDAO: FileDAO,
-    private s3: S3Service
+    @Inject(FileQueryService) private fileQueryService: FileQueryService,
+    @Inject(FileDAO) private fileDAO: FileDAO,
+    @Inject(S3Service) private s3: S3Service
   ) {}
 
   // %% deleteFileById %%

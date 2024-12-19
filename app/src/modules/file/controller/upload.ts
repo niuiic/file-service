@@ -12,7 +12,7 @@ import type { FastifyRequest } from 'fastify'
 import { toFileInfo, type FileInfo } from './fileInfo'
 import { ZodValidationPipe } from '@/share/validate'
 import type { MultipartValue } from '@fastify/multipart'
-import type { FileUploadService } from '../service/upload'
+import { FileUploadService } from '../service/upload'
 
 // % controller %
 @Controller('file/upload')
@@ -20,7 +20,7 @@ export class FileUploadController {
   // %% constructor %%
   constructor(
     @Inject('CONFIG') private config: AppConfig,
-    private fileUploadService: FileUploadService
+    @Inject(FileUploadService) private fileUploadService: FileUploadService
   ) {}
 
   // %% uploadFileByBlob %%

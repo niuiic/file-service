@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common'
-import type { S3Service } from '@/modules/s3/service/s3'
+import { Inject, Injectable } from '@nestjs/common'
+import { S3Service } from '@/modules/s3/service/s3'
 import type { FileSchema } from '@/modules/db/schema'
 import { isNil } from '@/share/isNil'
-import type { FileDAO } from '../dao'
+import { FileDAO } from '../dao'
 
 @Injectable()
 export class FileUploadService {
   constructor(
-    private fileDAO: FileDAO,
-    private s3: S3Service
+    @Inject(FileDAO) private fileDAO: FileDAO,
+    @Inject(S3Service) private s3: S3Service
   ) {}
 
   // %% uploadFileByBlob %%
