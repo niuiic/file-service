@@ -74,14 +74,15 @@ classDiagram
         +uploadFileByBlob(fileData: blob, fileHash: string, fileName: string) fileInfo
         +uploadFileByHash(fileHash: string, fileName: string) fileInfo
         +requestFileChunks(fileHash: string, fileSize: number) fileChunk[]
-        +uploadFileChunk(chunkData: blob, chunkIndex: number, chunkHash: string)
+        +uploadFileChunk(chunkData: blob, chunkIndex: number, chunkHash: string, fileHash: string)
         +mergeFileChunks(fileHash: string, fileName: string) fileInfo
         %% delete
         +deleteFile(fileId: string)
         %% query
-        +queryFileInfo(fileId: string, withUrl: boolean) fileInfo
-        +queryFilesInfo(fileIds: string[]: withUrl: boolean) fileInfo[]
+        +queryFileInfo(fileId: string) fileInfo
+        +queryFilesInfo(fileIds: string[]) fileInfo[]
         +isFileUploaded(fileHash: string) boolean
+        +downloadFile(fileId: string)
     }
 
     note for FileInfo "若非首次上传文件，则uploadTime为本次上传时间。"
@@ -95,6 +96,7 @@ classDiagram
 
     class FileChunk {
         +index: number
+        +size: number
         +uploaded: boolean
     }
 ```

@@ -6,12 +6,14 @@ import { FileUploadController } from './controller/upload'
 import { FileDeleteService } from './service/delete'
 import { FileQueryService } from './service/query'
 import { FileUploadService } from './service/upload'
+import { FileDownloadController } from './controller/download'
 
 @Module({
   controllers: [
     FileQueryController,
     FileUploadController,
-    FileDeleteController
+    FileDeleteController,
+    FileDownloadController
   ],
   providers: [FileDAO, FileQueryService, FileUploadService, FileDeleteService]
 })
