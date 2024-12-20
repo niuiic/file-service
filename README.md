@@ -113,7 +113,6 @@ erDiagram
         timestamp create_time
         timestamp upload_time
         varchar(1024) relative_path
-        boolean deleted
     }
 
     CHUNKS {
@@ -122,7 +121,6 @@ erDiagram
         timestamp create_time
         timestamp upload_time
         boolean uploaded
-        boolean deleted
     }
 ```
 

@@ -30,8 +30,7 @@ export const chunkSchema = pgTable(
     fileHash: varchar().notNull(),
     createTime: timestamp({ withTimezone: true }).notNull(),
     uploadTime: timestamp({ withTimezone: true }),
-    uploaded: boolean().notNull(),
-    deleted: boolean().notNull()
+    uploaded: boolean().notNull()
   },
   (table) => [{ pk: primaryKey({ columns: [table.index, table.fileHash] }) }]
 )
@@ -45,8 +44,7 @@ export const fileSchema = pgTable('files', {
   size: integer().notNull(),
   createTime: timestamp({ withTimezone: true }).notNull(),
   uploadTime: timestamp({ withTimezone: true }).notNull(),
-  relativePath: varchar({ length: 1024 }).notNull(),
-  deleted: boolean().notNull()
+  relativePath: varchar({ length: 1024 }).notNull()
 })
 
 export type FileSchema = typeof fileSchema.$inferInsert

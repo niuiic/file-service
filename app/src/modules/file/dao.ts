@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { eq, inArray, and } from 'drizzle-orm'
+import { eq, inArray } from 'drizzle-orm'
 import type { DBSchema } from '../db/module'
 import type { DB } from '../db/module'
 import { fileSchema, type FileSchema } from '../db/schema'
@@ -22,7 +22,7 @@ export class FileDAO {
     return this.db
       .select()
       .from(fileSchema)
-      .where(and(eq(fileSchema.id, id), eq(fileSchema.deleted, false)))
+      .where(eq(fileSchema.id, id))
       .limit(1)
       .then((x) => x[0])
   }
@@ -31,20 +31,14 @@ export class FileDAO {
   async queryFilesById(ids: string[]): Promise<FileSchema[]> {
     const { fileSchema } = this.schema
 
-    return this.db
-      .select()
-      .from(fileSchema)
-      .where(and(inArray(fileSchema.id, ids), eq(fileSchema.deleted, false)))
+    return this.db.select().from(fileSchema).where(inArray(fileSchema.id, ids))
   }
 
   // %% queryFilesByHash %%
   async queryFilesByHash(hash: string): Promise<FileSchema[]> {
     const { fileSchema } = this.schema
 
-    return this.db
-      .select()
-      .from(fileSchema)
-      .where(and(eq(fileSchema.hash, hash), eq(fileSchema.deleted, false)))
+    return this.db.select().from(fileSchema).where(eq(fileSchema.hash, hash))
   }
 
   // %% hasFileWithHash %%
@@ -52,7 +46,7 @@ export class FileDAO {
     return this.db
       .select()
       .from(fileSchema)
-      .where(and(eq(fileSchema.hash, hash), eq(fileSchema.deleted, false)))
+      .where(eq(fileSchema.hash, hash))
       .limit(1)
       .then((x) => x.length > 0)
   }
