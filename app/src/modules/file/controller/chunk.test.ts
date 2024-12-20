@@ -12,11 +12,26 @@ describe('file chunk controller', () => {
   afterAll(() => app.close())
 
   // %% requestFileChunks %%
-  test('requestFileChunks', () =>
-    request(app.getHttpServer())
+  test('requestFileChunks', async () => {
+    const fileName = new Date().toString()
+    const fileHash = new Date().toString()
+
+    await request(app.getHttpServer())
       .post('/file/chunk/request')
-      .field('fileName', new Date().toString())
-      .field('fileHash', new Date().toString())
-      .field('fileSize', 12 * 1024 ** 2)
-      .expect(200))
+      .send({
+        fileName,
+        fileHash,
+        fileSize: 12 * 1024 ** 2
+      })
+      .expect(201)
+
+    await request(app.getHttpServer())
+      .post('/file/chunk/request')
+      .send({
+        fileName,
+        fileHash,
+        fileSize: 12 * 1024 ** 2
+      })
+      .expect(201)
+  })
 })

@@ -56,4 +56,33 @@ export class S3Service {
         uploadId
       }))
   }
+
+  // %% uploadFileChunk %%
+  async uploadFileChunk({
+    chunkData,
+    relativePath,
+    uploadId,
+    chunkIndex
+  }: {
+    chunkData: Buffer
+    relativePath: string
+    uploadId: string
+    chunkIndex: number
+  }): Promise<string> {
+    const [bucket, ...paths] = relativePath.split('/')
+    const filePath = paths.join('/')
+
+    return this.client
+      .uploadPart(
+        {
+          bucketName: bucket,
+          objectName: filePath,
+          uploadID: uploadId,
+          partNumber: chunkIndex + 1,
+          headers: {}
+        },
+        chunkData
+      )
+      .then((x) => x.etag)
+  }
 }

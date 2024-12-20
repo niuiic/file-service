@@ -7,17 +7,24 @@ import { S3Service } from '@/modules/s3/service/s3'
 // % service %
 @Injectable()
 export class FileChunkService {
+  // %% constructor %%
   constructor(
     @Inject(UploadDAO) private readonly uploadDAO: UploadDAO,
     @Inject('CONFIG') private readonly config: AppConfig,
     @Inject(S3Service) private readonly s3: S3Service
   ) {}
 
+  // %% requestFileChunks %%
   async requestFileChunks(
     fileHash: string,
     fileName: string,
     fileSize: number
   ): Promise<ChunkInfo[]> {
+    let chunksInfo = await this.uploadDAO.queryChunksInfo(fileHash)
+    if (chunksInfo.length > 0) {
+      return chunksInfo
+    }
+
     const chunkSize = this.config.upload.chunkSize
 
     if (fileSize < chunkSize) {
@@ -36,7 +43,7 @@ export class FileChunkService {
       relativePath
     })
 
-    const fileChunks: ChunkInfo[] = Array.from({ length: chunkCount }).map(
+    chunksInfo = Array.from({ length: chunkCount }).map(
       (_, i): ChunkInfo => ({
         index: i,
         size: fileSize,
@@ -44,6 +51,40 @@ export class FileChunkService {
       })
     )
 
-    return fileChunks
+    return chunksInfo
+  }
+
+  // %% uploadFileChunk %%
+  async uploadFileChunk({
+    chunkData,
+    chunkIndex,
+    chunkHash,
+    fileHash
+  }: {
+    chunkData: Buffer
+    chunkIndex: number
+    chunkHash: string
+    fileHash: string
+  }) {
+    const uploadInfo = await this.uploadDAO.queryUploadInfo(fileHash)
+    if (!uploadInfo) {
+      throw new Error('未创建分片上传任务')
+    }
+
+    if (uploadInfo.uploaded[chunkIndex]) {
+      return
+    }
+
+    const hash = await this.s3.uploadFileChunk({
+      chunkData,
+      relativePath: uploadInfo.relativePath,
+      uploadId: uploadInfo.uploadId,
+      chunkIndex
+    })
+    if (hash !== chunkHash) {
+      throw new Error('分片hash值错误')
+    }
+
+    await this.uploadDAO.setChunkUploaded(fileHash, chunkIndex, chunkHash)
   }
 }
