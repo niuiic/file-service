@@ -11,7 +11,8 @@ import { FileQueryService } from '../service/query'
 export class FileQueryController {
   // %% constructor %%
   constructor(
-    @Inject(FileQueryService) private fileQueryService: FileQueryService
+    @Inject(FileQueryService)
+    private readonly fileQueryService: FileQueryService
   ) {}
 
   // %% queryFileById %%

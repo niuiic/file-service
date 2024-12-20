@@ -8,8 +8,8 @@ import type { AppConfig } from '@/share/config'
 export class FileQueryService {
   // %% constructor %%
   constructor(
-    @Inject(FileDAO) private fileDAO: FileDAO,
-    @Inject('CONFIG') private config: AppConfig
+    @Inject(FileDAO) private readonly fileDAO: FileDAO,
+    @Inject('CONFIG') private readonly config: AppConfig
   ) {}
 
   // %% queryFileById %%

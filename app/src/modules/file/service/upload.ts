@@ -7,8 +7,8 @@ import { FileDAO } from '../dao'
 @Injectable()
 export class FileUploadService {
   constructor(
-    @Inject(FileDAO) private fileDAO: FileDAO,
-    @Inject(S3Service) private s3: S3Service
+    @Inject(FileDAO) private readonly fileDAO: FileDAO,
+    @Inject(S3Service) private readonly s3: S3Service
   ) {}
 
   // %% uploadFileByBlob %%
@@ -40,8 +40,7 @@ export class FileUploadService {
       hash: fileHash,
       size: fileData.length,
       uploadTime: new Date(),
-      relativePath,
-      deleted: false
+      relativePath
     })
   }
 
@@ -88,8 +87,7 @@ export class FileUploadService {
       hash: fileHash,
       size: fileSize,
       uploadTime,
-      relativePath,
-      deleted: false
+      relativePath
     })
   }
 }

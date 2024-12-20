@@ -19,8 +19,9 @@ import { FileUploadService } from '../service/upload'
 export class FileUploadController {
   // %% constructor %%
   constructor(
-    @Inject('CONFIG') private config: AppConfig,
-    @Inject(FileUploadService) private fileUploadService: FileUploadService
+    @Inject('CONFIG') private readonly config: AppConfig,
+    @Inject(FileUploadService)
+    private readonly fileUploadService: FileUploadService
   ) {}
 
   // %% uploadFileByBlob %%

@@ -8,7 +8,8 @@ import { idString } from '@/share/schema'
 export class FileDownloadController {
   // %% constructor %%
   constructor(
-    @Inject(FileQueryService) private fileQueryService: FileQueryService
+    @Inject(FileQueryService)
+    private readonly fileQueryService: FileQueryService
   ) {}
 
   // %% downloadFile %%

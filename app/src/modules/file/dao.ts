@@ -10,9 +10,9 @@ import type { SnowflakeIdGenerator } from 'snowflake-id'
 export class FileDAO {
   // %% constructor %%
   constructor(
-    @Inject('DB') private db: DB,
-    @Inject('DB_SCHEMA') private schema: DBSchema,
-    @Inject('ID') private idGenerator: SnowflakeIdGenerator
+    @Inject('DB') private readonly db: DB,
+    @Inject('DB_SCHEMA') private readonly schema: DBSchema,
+    @Inject('ID') private readonly idGenerator: SnowflakeIdGenerator
   ) {}
 
   // %% queryFileById %%

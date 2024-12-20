@@ -8,7 +8,8 @@ import { FileDeleteService } from '../service/delete'
 export class FileDeleteController {
   // %% constructor %%
   constructor(
-    @Inject(FileDeleteService) private fileDeleteService: FileDeleteService
+    @Inject(FileDeleteService)
+    private readonly fileDeleteService: FileDeleteService
   ) {}
 
   // %% deleteFile %%
