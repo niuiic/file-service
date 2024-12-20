@@ -1,13 +1,13 @@
+import type { DB, DBSchema } from '@/modules/db/module'
+import type { FileSchema } from '@/modules/db/schema'
+import { fileSchema } from '@/modules/db/schema'
 import { Inject, Injectable } from '@nestjs/common'
 import { eq, inArray } from 'drizzle-orm'
-import type { DBSchema } from '../db/module'
-import type { DB } from '../db/module'
-import { fileSchema, type FileSchema } from '../db/schema'
 import type { SnowflakeIdGenerator } from 'snowflake-id'
 
 // % dao %
 @Injectable()
-export class FileDAO {
+export class FilesDAO {
   // %% constructor %%
   constructor(
     @Inject('DB') private readonly db: DB,

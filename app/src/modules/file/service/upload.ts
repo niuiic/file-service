@@ -2,12 +2,12 @@ import { Inject, Injectable } from '@nestjs/common'
 import { S3Service } from '@/modules/s3/service/s3'
 import type { FileSchema } from '@/modules/db/schema'
 import { isNil } from '@/share/isNil'
-import { FileDAO } from '../dao'
+import { FilesDAO } from '../dao/files'
 
 @Injectable()
 export class FileUploadService {
   constructor(
-    @Inject(FileDAO) private readonly fileDAO: FileDAO,
+    @Inject(FilesDAO) private readonly filesDAO: FilesDAO,
     @Inject(S3Service) private readonly s3: S3Service
   ) {}
 
@@ -17,7 +17,7 @@ export class FileUploadService {
     fileHash: string,
     fileName: string
   ): Promise<FileSchema> {
-    const files = await this.fileDAO.queryFilesByHash(fileHash)
+    const files = await this.filesDAO.queryFilesByHash(fileHash)
     if (files.length > 0) {
       return this.uploadFileByHash({
         fileHash,
@@ -35,7 +35,7 @@ export class FileUploadService {
       fileHash
     )
 
-    return this.fileDAO.createFile({
+    return this.filesDAO.createFile({
       name: fileName,
       hash: fileHash,
       size: fileData.length,
@@ -61,7 +61,7 @@ export class FileUploadService {
     relativePath?: string
   }): Promise<FileSchema> {
     if (!skipCheck) {
-      const files = await this.fileDAO.queryFilesByHash(fileHash)
+      const files = await this.filesDAO.queryFilesByHash(fileHash)
       if (files.length === 0) {
         throw new Error('文件未上传')
       }
@@ -82,7 +82,7 @@ export class FileUploadService {
       throw new Error('未指定文件相对路径')
     }
 
-    return this.fileDAO.createFile({
+    return this.filesDAO.createFile({
       name: fileName,
       hash: fileHash,
       size: fileSize,

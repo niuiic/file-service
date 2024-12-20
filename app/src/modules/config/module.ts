@@ -11,7 +11,18 @@ export class ConfigModule {
       providers: [
         {
           provide: 'CONFIG',
-          useFactory: () => loadConfig(configPath)
+          useFactory: () => {
+            const config = loadConfig(configPath)
+
+            if (config.upload.maxBlobSize < config.upload.chunkSize) {
+              throw new Error('配置中maxBlobSize不能小于chunkSize')
+            }
+            if (config.upload.chunkSize < 5 * 1024 ** 2) {
+              throw new Error('配置中chunkSize不能小于5M')
+            }
+
+            return config
+          }
         }
       ],
       exports: ['CONFIG']

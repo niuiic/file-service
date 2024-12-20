@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { FileDAO } from './dao'
+import { FilesDAO } from './dao/files'
 import { FileDeleteController } from './controller/delete'
 import { FileQueryController } from './controller/query'
 import { FileUploadController } from './controller/upload'
@@ -9,6 +9,7 @@ import { FileUploadService } from './service/upload'
 import { FileDownloadController } from './controller/download'
 import { FileChunkController } from './controller/chunk'
 import { FileChunkService } from './service/chunk'
+import { UploadDAO } from './dao/upload'
 
 @Module({
   controllers: [
@@ -19,7 +20,8 @@ import { FileChunkService } from './service/chunk'
     FileChunkController
   ],
   providers: [
-    FileDAO,
+    FilesDAO,
+    UploadDAO,
     FileQueryService,
     FileUploadService,
     FileDeleteService,

@@ -73,7 +73,7 @@ classDiagram
         %% create
         +uploadFileByBlob(fileData: blob, fileHash: string, fileName: string) fileInfo
         +uploadFileByHash(fileHash: string, fileName: string) fileInfo
-        +requestFileChunks(fileHash: string, fileSize: number) fileChunk[]
+        +requestFileChunks(fileHash: string, fileName: string, fileSize: number) fileChunk[]
         +uploadFileChunk(chunkData: blob, chunkIndex: number, chunkHash: string, fileHash: string)
         +mergeFileChunks(fileHash: string, fileName: string) fileInfo
         %% delete
@@ -118,11 +118,28 @@ erDiagram
     CHUNKS {
         integer index PK
         varchar(32) file_hash PK
-        timestamp create_time
-        timestamp upload_time
+        varchar(32) hash
+        int size "以字节为单位"
         boolean uploaded
     }
+
+    MULTIPART_UPLOAD {
+        string file_hash PK
+        string upload_id
+    }
 ```
+
+`CHUNK_{file_hash} -> hash`
+
+`hash` {
+upload_id: string
+file_hash: string
+chunk_size: number
+chunks: list
+upload_state: string
+}
+
+`list` chunk_hash[]
 
 ## 流程设计
 

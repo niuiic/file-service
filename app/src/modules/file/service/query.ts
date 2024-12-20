@@ -1,35 +1,35 @@
 import { Inject, Injectable } from '@nestjs/common'
 import type { FileSchema } from '@/modules/db/schema'
-import { FileDAO } from '../dao'
 import type { AppConfig } from '@/share/config'
+import { FilesDAO } from '../dao/files'
 
 // % service %
 @Injectable()
 export class FileQueryService {
   // %% constructor %%
   constructor(
-    @Inject(FileDAO) private readonly fileDAO: FileDAO,
+    @Inject(FilesDAO) private readonly filesDAO: FilesDAO,
     @Inject('CONFIG') private readonly config: AppConfig
   ) {}
 
   // %% queryFileById %%
   async queryFileById(id: string): Promise<FileSchema | undefined> {
-    return this.fileDAO.queryFileById(id)
+    return this.filesDAO.queryFileById(id)
   }
 
   // %% queryFilesById %%
   async queryFilesById(ids: string[]): Promise<FileSchema[]> {
-    return this.fileDAO.queryFilesById(ids)
+    return this.filesDAO.queryFilesById(ids)
   }
 
   // %% queryFileByHash %%
   async queryFileByHash(hash: string): Promise<FileSchema[] | undefined> {
-    return this.fileDAO.queryFilesByHash(hash)
+    return this.filesDAO.queryFilesByHash(hash)
   }
 
   // %% queryFileUrlById %%
   async queryFileUrlById(fileId: string) {
-    const file = await this.fileDAO.queryFileById(fileId)
+    const file = await this.filesDAO.queryFileById(fileId)
     if (!file) {
       throw new Error('文件不存在')
     }

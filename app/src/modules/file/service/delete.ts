@@ -1,14 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { FileQueryService } from './query'
-import { FileDAO } from '../dao'
 import { S3Service } from '@/modules/s3/service/s3'
+import { FilesDAO } from '../dao/files'
 
 @Injectable()
 export class FileDeleteService {
   constructor(
     @Inject(FileQueryService)
     private readonly fileQueryService: FileQueryService,
-    @Inject(FileDAO) private readonly fileDAO: FileDAO,
+    @Inject(FilesDAO) private readonly filesDAO: FilesDAO,
     @Inject(S3Service) private readonly s3: S3Service
   ) {}
 
@@ -19,11 +19,11 @@ export class FileDeleteService {
       return
     }
 
-    const files = await this.fileDAO.queryFilesByHash(file.hash)
+    const files = await this.filesDAO.queryFilesByHash(file.hash)
     if (files.length === 1) {
       await this.s3.deleteFile(file.relativePath)
     }
 
-    return this.fileDAO.deleteFileById(fileId)
+    return this.filesDAO.deleteFileById(fileId)
   }
 }

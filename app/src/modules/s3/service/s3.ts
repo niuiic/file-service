@@ -14,7 +14,11 @@ export class S3Service {
   ) {}
 
   // %% uploadFileByBlob %%
-  async uploadFileByBlob(fileData: Buffer, fileName: string, fileHash: string) {
+  async uploadFileByBlob(
+    fileData: Buffer,
+    fileName: string,
+    fileHash: string
+  ): Promise<string> {
     const relativePath = join(this.idGenerator.getId(), fileName)
 
     const { etag } = await this.client.putObject(
@@ -32,10 +36,24 @@ export class S3Service {
   }
 
   // %% deleteFile %%
-  async deleteFile(relativePath: string) {
+  async deleteFile(relativePath: string): Promise<void> {
     const [bucket, ...paths] = relativePath.split('/')
     const filePath = paths.join('/')
 
     return this.client.removeObject(bucket, filePath)
+  }
+
+  // %% createMultipartUpload %%
+  async createMultipartUpload(
+    fileName: string
+  ): Promise<{ relativePath: string; uploadId: string }> {
+    const relativePath = join(this.idGenerator.getId(), fileName)
+
+    return this.client
+      .initiateNewMultipartUpload(this.config.s3.bucket, relativePath, {})
+      .then((uploadId) => ({
+        relativePath,
+        uploadId
+      }))
   }
 }

@@ -1,34 +1,15 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { FastifyAdapter } from '@nestjs/platform-fastify'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import request from 'supertest'
-import { Test } from '@nestjs/testing'
-import multipart from '@fastify/multipart'
-import { AppModule } from '@/app.module'
-import type { AppConfig } from '@/share/config'
 import type { RawServerDefault } from 'fastify'
 import { createHash } from 'crypto'
 import type { FileInfo } from './fileInfo'
+import { initTestApp } from '@/share/test'
 
 describe('file upload controller', () => {
   let app: NestFastifyApplication<RawServerDefault>
 
-  beforeAll(async () => {
-    app = await Test.createTestingModule({
-      imports: [AppModule.forRoot(true)]
-    })
-      .compile()
-      .then((x) =>
-        x.createNestApplication<NestFastifyApplication<RawServerDefault>>(
-          new FastifyAdapter()
-        )
-      )
-    await app.register(multipart as any, {
-      limits: { fileSize: app.get<AppConfig>('CONFIG').upload.maxBlobSize }
-    })
-    await app.init()
-    await app.getHttpAdapter().getInstance().ready()
-  })
+  beforeAll(async () => (app = await initTestApp()))
 
   afterAll(() => app.close())
 
