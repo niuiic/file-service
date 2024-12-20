@@ -14,7 +14,9 @@ export class FileDeleteController {
 
   // %% deleteFile %%
   @Post('/')
-  async deleteFile(@Body(new ZodValidationPipe(idString())) fileId: string) {
+  async deleteFile(
+    @Body('fileId', new ZodValidationPipe(idString())) fileId: string
+  ) {
     return this.fileDeleteService.deleteFileById(fileId)
   }
 }

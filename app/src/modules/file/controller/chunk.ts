@@ -67,4 +67,12 @@ export class FileChunkController {
       fileHash
     })
   }
+
+  // %% mergeFileChunks %%
+  @Post('merge')
+  async mergeFileChunks(
+    @Body('fileHash', new ZodValidationPipe(z.string())) fileHash: string
+  ) {
+    return this.fileChunkService.mergeFileChunks(fileHash)
+  }
 }

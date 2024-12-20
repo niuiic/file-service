@@ -3,6 +3,7 @@ import { UploadDAO } from '../dao/upload'
 import type { AppConfig } from '@/share/config'
 import type { ChunkInfo } from './chunkInfo'
 import { S3Service } from '@/modules/s3/service/s3'
+import { FilesDAO } from '../dao/files'
 
 // % service %
 @Injectable()
@@ -11,6 +12,7 @@ export class FileChunkService {
   constructor(
     @Inject(UploadDAO) private readonly uploadDAO: UploadDAO,
     @Inject('CONFIG') private readonly config: AppConfig,
+    @Inject(FilesDAO) private readonly filesDAO: FilesDAO,
     @Inject(S3Service) private readonly s3: S3Service
   ) {}
 
@@ -35,8 +37,9 @@ export class FileChunkService {
       await this.s3.createMultipartUpload(fileName)
 
     const chunkCount = Math.ceil(fileSize / chunkSize)
-    await this.uploadDAO.createMultipartUpload({
+    await this.uploadDAO.createUpload({
       fileHash,
+      fileSize,
       uploadId,
       chunkSize,
       chunkCount,
@@ -86,5 +89,34 @@ export class FileChunkService {
     }
 
     await this.uploadDAO.setChunkUploaded(fileHash, chunkIndex, chunkHash)
+  }
+
+  // %% mergeFileChunks %%
+  async mergeFileChunks(fileHash: string) {
+    if (!(await this.uploadDAO.isReadyToMerge(fileHash))) {
+      throw new Error('文件分片上传未完成')
+    }
+
+    const chunksInfo = await this.uploadDAO.queryChunksInfo(fileHash)
+    const uploadInfo = await this.uploadDAO.queryUploadInfo(fileHash)
+    if (!uploadInfo) {
+      throw new Error('未创建分片上传任务')
+    }
+
+    await this.s3.mergeFileChunks(
+      uploadInfo.relativePath,
+      uploadInfo.uploadId,
+      chunksInfo.map((x) => ({ index: x.index, hash: x.hash! }))
+    )
+
+    await this.uploadDAO.deleteUpload(fileHash)
+
+    await this.filesDAO.createFile({
+      relativePath: uploadInfo.relativePath,
+      name: uploadInfo.relativePath.split('/').at(-1)!,
+      hash: fileHash,
+      size: uploadInfo.fileSize,
+      uploadTime: new Date()
+    })
   }
 }

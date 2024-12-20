@@ -9,15 +9,17 @@ export class UploadDAO {
   // %% constructor %%
   constructor(@Inject('CACHE') private readonly cache: Cache) {}
 
-  // %% createMultipartUpload %%
-  async createMultipartUpload({
+  // %% createUpload %%
+  async createUpload({
     fileHash,
+    fileSize,
     uploadId,
     chunkSize,
     chunkCount,
     relativePath
   }: {
     fileHash: string
+    fileSize: number
     uploadId: string
     chunkSize: number
     chunkCount: number
@@ -25,6 +27,7 @@ export class UploadDAO {
   }) {
     return this.cache.hset(getUploadKey(fileHash), {
       uploadId,
+      fileSize,
       fileHash,
       relativePath,
       chunkSize,
@@ -40,21 +43,28 @@ export class UploadDAO {
         return []
       }
 
+      const chunksHash = JSON.parse(data.chunks)
+
       return data.uploadState.split('').map(
         (x, i): ChunkInfo => ({
           index: i,
           size: parseInt(data.chunkSize, 10),
-          uploaded: x === '1'
+          uploaded: x === '1',
+          hash: chunksHash[i]
         })
       )
     })
   }
 
   // %% queryUploadInfo %%
-  async queryUploadInfo(
-    fileHash: string
-  ): Promise<
-    { uploadId: string; relativePath: string; uploaded: boolean[] } | undefined
+  async queryUploadInfo(fileHash: string): Promise<
+    | {
+        uploadId: string
+        fileSize: number
+        relativePath: string
+        uploaded: boolean[]
+      }
+    | undefined
   > {
     return this.cache.hgetall(getUploadKey(fileHash)).then((data) => {
       if (isObjEmpty(data)) {
@@ -63,12 +73,14 @@ export class UploadDAO {
 
       return {
         uploadId: data.uploadId,
+        fileSize: parseInt(data.fileSize, 10),
         relativePath: data.relativePath,
         uploaded: data.uploadState.split('').map((x) => x === '1')
       }
     })
   }
 
+  // %% setChunkUploaded %%
   async setChunkUploaded(
     fileHash: string,
     chunkIndex: number,
@@ -97,6 +109,18 @@ export class UploadDAO {
       ...JSON.parse(chunksStr),
       [chunkIndex]: chunkHash
     })
+  }
+
+  // %% isReadyToMerge %%
+  async isReadyToMerge(fileHash: string): Promise<boolean> {
+    return this.cache
+      .hget(getUploadKey(fileHash), 'uploadState')
+      .then((x) => Boolean(x && !x.includes('0')))
+  }
+
+  // %% deleteUpload %%
+  async deleteUpload(fileHash: string) {
+    this.cache.hdel(getUploadKey(fileHash))
   }
 }
 

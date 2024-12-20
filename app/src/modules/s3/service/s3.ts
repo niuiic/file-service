@@ -37,8 +37,7 @@ export class S3Service {
 
   // %% deleteFile %%
   async deleteFile(relativePath: string): Promise<void> {
-    const [bucket, ...paths] = relativePath.split('/')
-    const filePath = paths.join('/')
+    const { bucket, filePath } = getBucketAndFilePath(relativePath)
 
     return this.client.removeObject(bucket, filePath)
   }
@@ -69,8 +68,7 @@ export class S3Service {
     uploadId: string
     chunkIndex: number
   }): Promise<string> {
-    const [bucket, ...paths] = relativePath.split('/')
-    const filePath = paths.join('/')
+    const { bucket, filePath } = getBucketAndFilePath(relativePath)
 
     return this.client
       .uploadPart(
@@ -85,4 +83,27 @@ export class S3Service {
       )
       .then((x) => x.etag)
   }
+
+  // %% mergeFileChunks %%
+  async mergeFileChunks(
+    relativePath: string,
+    uploadId: string,
+    chunks: { index: number; hash: string }[]
+  ) {
+    const { bucket, filePath } = getBucketAndFilePath(relativePath)
+
+    await this.client.completeMultipartUpload(
+      bucket,
+      filePath,
+      uploadId,
+      chunks.map(({ index, hash }) => ({ etag: hash, part: index + 1 }))
+    )
+  }
+}
+
+const getBucketAndFilePath = (relativePath: string) => {
+  const [bucket, ...paths] = relativePath.split('/')
+  const filePath = paths.join('/')
+
+  return { bucket, filePath }
 }
