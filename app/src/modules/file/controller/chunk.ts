@@ -11,6 +11,7 @@ import { FileChunkService } from '../service/chunk'
 import { ZodValidationPipe } from '@/share/validate'
 import type { FastifyRequest } from 'fastify/types/request'
 import type { MultipartValue } from '@fastify/multipart'
+import { toFileInfo } from './fileInfo'
 
 // % controller %
 @Controller('/file/chunk')
@@ -33,13 +34,13 @@ export class FileChunkController {
       data.fileSize
     )
   }
-  // %% uploadFileChunk %%
   private static requestFileChunksDTO = z.object({
     fileHash: z.string(),
     fileName: z.string(),
     fileSize: z.number()
   })
 
+  // %% uploadFileChunk %%
   @Post('upload')
   async uploadFileChunk(@Req() req: FastifyRequest) {
     const chunk = await req.file()
@@ -73,6 +74,6 @@ export class FileChunkController {
   async mergeFileChunks(
     @Body('fileHash', new ZodValidationPipe(z.string())) fileHash: string
   ) {
-    return this.fileChunkService.mergeFileChunks(fileHash)
+    return this.fileChunkService.mergeFileChunks(fileHash).then(toFileInfo)
   }
 }

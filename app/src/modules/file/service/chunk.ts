@@ -111,7 +111,7 @@ export class FileChunkService {
 
     await this.uploadDAO.deleteUpload(fileHash)
 
-    await this.filesDAO.createFile({
+    return this.filesDAO.createFile({
       relativePath: uploadInfo.relativePath,
       name: uploadInfo.relativePath.split('/').at(-1)!,
       hash: fileHash,

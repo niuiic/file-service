@@ -25,35 +25,53 @@ export class UploadDAO {
     chunkCount: number
     relativePath: string
   }) {
-    return this.cache.hset(getUploadKey(fileHash), {
-      uploadId,
-      fileSize,
-      fileHash,
-      relativePath,
-      chunkSize,
-      chunks: {},
-      uploadState: '0'.repeat(chunkCount)
-    })
+    return this.cache
+      .pipeline()
+      .hset(getUploadKey(fileHash), {
+        uploadId,
+        fileSize,
+        fileHash,
+        relativePath,
+        chunkSize,
+        uploadState: '0'.repeat(chunkCount)
+      })
+      .hset(getChunksKey(fileHash), {})
+      .setbit(getStatusKey(fileHash), chunkCount - 1, 0)
+      .exec()
+      .then((results) =>
+        results?.forEach(([err]) => {
+          if (err) {
+            throw err
+          }
+        })
+      )
   }
 
   // %% queryChunksInfo %%
   async queryChunksInfo(fileHash: string): Promise<ChunkInfo[]> {
-    return this.cache.hgetall(getUploadKey(fileHash)).then((data) => {
-      if (isObjEmpty(data)) {
-        return []
-      }
-
-      const chunksHash = JSON.parse(data.chunks)
-
-      return data.uploadState.split('').map(
-        (x, i): ChunkInfo => ({
-          index: i,
-          size: parseInt(data.chunkSize, 10),
-          uploaded: x === '1',
-          hash: chunksHash[i]
-        })
-      )
-    })
+    return this.cache
+      .pipeline()
+      .hget(getUploadKey(fileHash), 'fileSize')
+      .hgetall(getChunksKey(fileHash))
+      .exec((results) => {
+        // const [upload, chunks] = results
+      })
+    // .then((data) => {
+    //   if (isObjEmpty(data)) {
+    //     return []
+    //   }
+    //
+    //   const chunksHash = JSON.parse(data.chunks)
+    //
+    //   return data.uploadState.split('').map(
+    //     (x, i): ChunkInfo => ({
+    //       index: i,
+    //       size: parseInt(data.chunkSize, 10),
+    //       uploaded: x === '1',
+    //       hash: chunksHash[i]
+    //     })
+    //   )
+    // })
   }
 
   // %% queryUploadInfo %%
@@ -120,11 +138,14 @@ export class UploadDAO {
 
   // %% deleteUpload %%
   async deleteUpload(fileHash: string) {
-    this.cache.hdel(getUploadKey(fileHash))
+    this.cache.del(getUploadKey(fileHash))
   }
 }
 
+// % extract %
 const getUploadKey = (fileHash: string) => `UPLOAD:${fileHash}`
+const getChunksKey = (fileHash: string) => `UPLOAD:CHUNKS:${fileHash}`
+const getStatusKey = (fileHash: string) => `UPLOAD:STATUS:${fileHash}`
 
 const isObjEmpty = (obj: Record<PropertyKey, any>) =>
   Object.keys(obj).length === 0
