@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import type { Cache } from '@/modules/cache/module'
-import type { ChunkInfo } from '../service/chunkInfo'
+import type { ChunksInfo } from '../service/chunksInfo'
 import { isNil } from '@/share/isNil'
 
 // % dao %
@@ -28,50 +28,38 @@ export class UploadDAO {
     return this.cache
       .pipeline()
       .hset(getUploadKey(fileHash), {
-        uploadId,
-        fileSize,
         fileHash,
-        relativePath,
+        fileSize,
+        uploadId,
         chunkSize,
-        uploadState: '0'.repeat(chunkCount)
+        chunkCount,
+        relativePath
       })
       .hset(getChunksKey(fileHash), {})
-      .setbit(getStatusKey(fileHash), chunkCount - 1, 0)
       .exec()
-      .then((results) =>
-        results?.forEach(([err]) => {
-          if (err) {
-            throw err
-          }
-        })
-      )
+      .then(validateResults)
   }
 
   // %% queryChunksInfo %%
-  async queryChunksInfo(fileHash: string): Promise<ChunkInfo[]> {
+  async queryChunksInfo(fileHash: string): Promise<ChunksInfo | undefined> {
     return this.cache
       .pipeline()
-      .hget(getUploadKey(fileHash), 'fileSize')
-      .hgetall(getChunksKey(fileHash))
-      .exec((results) => {
-        // const [upload, chunks] = results
+      .hmget(getUploadKey(fileHash), 'chunkCount', 'chunkSize')
+      .hkeys(getChunksKey(fileHash))
+      .exec()
+      .then(validateResults)
+      .then((results) => {
+        const [chunkCount, chunkSize] = results[0] as string[]
+        const uploadedIndices = results[1] as string[]
+
+        const chunksInfo: ChunksInfo = {
+          uploadedIndices: uploadedIndices.map((x) => parseInt(x, 10)),
+          count: parseInt(chunkCount, 10),
+          size: parseInt(chunkSize, 10)
+        }
+
+        return chunksInfo
       })
-    // .then((data) => {
-    //   if (isObjEmpty(data)) {
-    //     return []
-    //   }
-    //
-    //   const chunksHash = JSON.parse(data.chunks)
-    //
-    //   return data.uploadState.split('').map(
-    //     (x, i): ChunkInfo => ({
-    //       index: i,
-    //       size: parseInt(data.chunkSize, 10),
-    //       uploaded: x === '1',
-    //       hash: chunksHash[i]
-    //     })
-    //   )
-    // })
   }
 
   // %% queryUploadInfo %%
@@ -80,22 +68,23 @@ export class UploadDAO {
         uploadId: string
         fileSize: number
         relativePath: string
-        uploaded: boolean[]
       }
     | undefined
   > {
-    return this.cache.hgetall(getUploadKey(fileHash)).then((data) => {
-      if (isObjEmpty(data)) {
-        return
-      }
+    return this.cache
+      .hmget(getUploadKey(fileHash), 'uploadId', 'fileSize', 'relativePath')
+      .then((data) => {
+        if (data.some(isNil)) {
+          return
+        }
 
-      return {
-        uploadId: data.uploadId,
-        fileSize: parseInt(data.fileSize, 10),
-        relativePath: data.relativePath,
-        uploaded: data.uploadState.split('').map((x) => x === '1')
-      }
-    })
+        const [uploadId, fileSize, relativePath] = data as string[]
+        return {
+          uploadId,
+          fileSize: parseInt(fileSize, 10),
+          relativePath
+        }
+      })
   }
 
   // %% setChunkUploaded %%
@@ -104,51 +93,64 @@ export class UploadDAO {
     chunkIndex: number,
     chunkHash: string
   ) {
-    const uploadState = await this.cache.hget(
-      getUploadKey(fileHash),
-      'uploadState'
-    )
-    if (isNil(uploadState)) {
-      throw new Error('分片上传任务不存在')
-    }
-
-    await this.cache.hset(
-      getUploadKey(fileHash),
-      'uploadState',
-      getNewUploadState(uploadState, chunkIndex)
-    )
-
-    const chunksStr = await this.cache.hget(getUploadKey(fileHash), 'chunks')
-    if (isNil(chunksStr)) {
-      throw new Error('分片信息不存在')
-    }
-
-    await this.cache.hset(getUploadKey(fileHash), 'chunks', {
-      ...JSON.parse(chunksStr),
-      [chunkIndex]: chunkHash
-    })
+    return this.cache.hset(getChunksKey(fileHash), chunkIndex, chunkHash)
   }
 
   // %% isReadyToMerge %%
   async isReadyToMerge(fileHash: string): Promise<boolean> {
     return this.cache
-      .hget(getUploadKey(fileHash), 'uploadState')
-      .then((x) => Boolean(x && !x.includes('0')))
+      .pipeline()
+      .hget(getUploadKey(fileHash), 'chunkCount')
+      .hlen(getChunksKey(fileHash))
+      .exec()
+      .then(validateResults)
+      .then((results) => {
+        const [chunkCount, uploadedCount] = results
+        return parseInt(chunkCount as string, 10) === uploadedCount
+      })
   }
 
   // %% deleteUpload %%
   async deleteUpload(fileHash: string) {
-    this.cache.del(getUploadKey(fileHash))
+    return this.cache
+      .pipeline()
+      .del(getUploadKey(fileHash))
+      .del(getChunksKey(fileHash))
+      .exec()
+      .then(validateResults)
+  }
+
+  // %% isChunkUploaded %%
+  async isChunkUploaded(
+    fileHash: string,
+    chunkIndex: number
+  ): Promise<boolean> {
+    return this.cache
+      .hexists(getChunksKey(fileHash), chunkIndex.toString())
+      .then((x) => x === 1)
+  }
+
+  // %% queryChunksHash %%
+  async queryChunksHash(fileHash: string): Promise<string[]> {
+    return this.cache.hvals(getChunksKey(fileHash))
   }
 }
 
 // % extract %
 const getUploadKey = (fileHash: string) => `UPLOAD:${fileHash}`
 const getChunksKey = (fileHash: string) => `UPLOAD:CHUNKS:${fileHash}`
-const getStatusKey = (fileHash: string) => `UPLOAD:STATUS:${fileHash}`
 
-const isObjEmpty = (obj: Record<PropertyKey, any>) =>
-  Object.keys(obj).length === 0
+const validateResults = (
+  results: [error: Error | null, result: unknown][] | null
+): unknown[] => {
+  if (!results) {
+    throw new Error('结果不存在')
+  }
 
-const getNewUploadState = (uploadState: string, index: number) =>
-  uploadState.slice(0, index) + '1' + uploadState.slice(index + 1)
+  return results.map(([err, value]) => {
+    if (err) {
+      throw err
+    }
+    return value
+  })
+}

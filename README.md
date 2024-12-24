@@ -68,19 +68,19 @@ architecture-beta
 classDiagram
     note for FileServiceController "请求文件分片地址时若已存在相同文件的分片方案，则返回现有分片信息。<br>上传文件时若已存在相同内容的文件，仍新增记录。"
     FileServiceController ..> FileInfo
-    FileServiceController ..> FileChunk
+    FileServiceController ..> ChunksInfo
     class FileServiceController {
         %% create
-        +uploadFileByBlob(fileData: blob, fileHash: string, fileName: string) fileInfo
-        +uploadFileByHash(fileHash: string, fileName: string) fileInfo
-        +requestFileChunks(fileHash: string, fileName: string, fileSize: number) fileChunk[]
+        +uploadFileByBlob(fileData: blob, fileHash: string, fileName: string) FileInfo
+        +uploadFileByHash(fileHash: string, fileName: string) FileInfo
+        +requestFileChunks(fileHash: string, fileName: string, fileSize: number) ChunksInfo
         +uploadFileChunk(chunkData: blob, chunkIndex: number, chunkHash: string, fileHash: string)
-        +mergeFileChunks(fileHash: string, fileName: string) fileInfo
+        +mergeFileChunks(fileHash: string, fileName: string) FileInfo
         %% delete
         +deleteFile(fileId: string)
         %% query
-        +queryFileInfo(fileId: string) fileInfo
-        +queryFilesInfo(fileIds: string[]) fileInfo[]
+        +queryFileInfo(fileId: string) FileInfo
+        +queryFilesInfo(fileIds: string[]) FileInfo[]
         +isFileUploaded(fileHash: string) boolean
         +downloadFile(fileId: string)
     }
@@ -94,10 +94,10 @@ classDiagram
         +relativePath: string
     }
 
-    class FileChunk {
-        +index: number
+    class ChunksInfo {
+        +uploadedIndices: number[]
+        +count: number
         +size: number
-        +uploaded: boolean
     }
 ```
 

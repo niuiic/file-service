@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { UploadDAO } from '../dao/upload'
 import type { AppConfig } from '@/share/config'
-import type { ChunkInfo } from './chunkInfo'
+import type { ChunksInfo } from './chunksInfo'
 import { S3Service } from '@/modules/s3/service/s3'
 import { FilesDAO } from '../dao/files'
 
@@ -21,9 +21,9 @@ export class FileChunkService {
     fileHash: string,
     fileName: string,
     fileSize: number
-  ): Promise<ChunkInfo[]> {
-    let chunksInfo = await this.uploadDAO.queryChunksInfo(fileHash)
-    if (chunksInfo.length > 0) {
+  ): Promise<ChunksInfo> {
+    const chunksInfo = await this.uploadDAO.queryChunksInfo(fileHash)
+    if (chunksInfo) {
       return chunksInfo
     }
 
@@ -46,15 +46,11 @@ export class FileChunkService {
       relativePath
     })
 
-    chunksInfo = Array.from({ length: chunkCount }).map(
-      (_, i): ChunkInfo => ({
-        index: i,
-        size: fileSize,
-        uploaded: false
-      })
-    )
-
-    return chunksInfo
+    return {
+      count: chunkCount,
+      size: chunkSize,
+      uploadedIndices: []
+    }
   }
 
   // %% uploadFileChunk %%
@@ -74,7 +70,7 @@ export class FileChunkService {
       throw new Error('未创建分片上传任务')
     }
 
-    if (uploadInfo.uploaded[chunkIndex]) {
+    if (await this.uploadDAO.isChunkUploaded(fileHash, chunkIndex)) {
       return
     }
 
@@ -97,7 +93,7 @@ export class FileChunkService {
       throw new Error('文件分片上传未完成')
     }
 
-    const chunksInfo = await this.uploadDAO.queryChunksInfo(fileHash)
+    const chunksHash = await this.uploadDAO.queryChunksHash(fileHash)
     const uploadInfo = await this.uploadDAO.queryUploadInfo(fileHash)
     if (!uploadInfo) {
       throw new Error('未创建分片上传任务')
@@ -106,7 +102,7 @@ export class FileChunkService {
     await this.s3.mergeFileChunks(
       uploadInfo.relativePath,
       uploadInfo.uploadId,
-      chunksInfo.map((x) => ({ index: x.index, hash: x.hash! }))
+      chunksHash.map((x, i) => ({ index: i, hash: x }))
     )
 
     await this.uploadDAO.deleteUpload(fileHash)
