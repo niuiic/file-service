@@ -67,7 +67,7 @@ export class S3Service {
     relativePath: string
     uploadId: string
     chunkIndex: number
-  }): Promise<string> {
+  }): Promise<{ hash: string; part: number }> {
     const { bucket, filePath } = getBucketAndFilePath(relativePath)
 
     return this.client
@@ -81,14 +81,14 @@ export class S3Service {
         },
         chunkData
       )
-      .then((x) => x.etag)
+      .then((x) => ({ hash: x.etag, part: x.part }))
   }
 
   // %% mergeFileChunks %%
   async mergeFileChunks(
     relativePath: string,
     uploadId: string,
-    chunks: { index: number; hash: string }[]
+    chunks: { part: number; hash: string }[]
   ) {
     const { bucket, filePath } = getBucketAndFilePath(relativePath)
 
@@ -96,7 +96,7 @@ export class S3Service {
       bucket,
       filePath,
       uploadId,
-      chunks.map(({ index, hash }) => ({ etag: hash, part: index + 1 }))
+      chunks.map(({ part, hash }) => ({ etag: hash, part }))
     )
   }
 }

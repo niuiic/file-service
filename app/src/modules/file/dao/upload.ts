@@ -91,12 +91,20 @@ export class UploadDAO {
   }
 
   // %% setChunkUploaded %%
-  async setChunkUploaded(
-    fileHash: string,
-    chunkIndex: number,
+  async setChunkUploaded({
+    fileHash,
+    chunkIndex,
+    chunkHash,
+    uploadPart
+  }: {
+    fileHash: string
+    chunkIndex: number
     chunkHash: string
-  ) {
-    return this.cache.hset(getChunksKey(fileHash), { [chunkIndex]: chunkHash })
+    uploadPart: number
+  }) {
+    return this.cache.hset(getChunksKey(fileHash), {
+      [chunkIndex]: `${uploadPart}/${chunkHash}`
+    })
   }
 
   // %% isReadyToMerge %%
@@ -133,11 +141,16 @@ export class UploadDAO {
       .then((x) => x === 1)
   }
 
-  // %% queryChunksHash %%
-  async queryChunksHash(
+  // %% queryChunksPartAndHash %%
+  async queryChunksPartAndHash(
     fileHash: string
-  ): Promise<{ [index: string]: string }> {
-    return this.cache.hgetall(getChunksKey(fileHash))
+  ): Promise<{ part: number; hash: string }[]> {
+    return this.cache.hgetall(getChunksKey(fileHash)).then((data) =>
+      Object.entries(data).map(([_, value]) => {
+        const [part, hash] = value.split('/')
+        return { part: parseInt(part, 10), hash }
+      })
+    )
   }
 }
 

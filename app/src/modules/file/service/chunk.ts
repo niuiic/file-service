@@ -74,7 +74,7 @@ export class FileChunkService {
       return
     }
 
-    const hash = await this.s3.uploadFileChunk({
+    const { hash, part } = await this.s3.uploadFileChunk({
       chunkData,
       relativePath: uploadInfo.relativePath,
       uploadId: uploadInfo.uploadId,
@@ -84,7 +84,12 @@ export class FileChunkService {
       throw new Error('分片hash值错误')
     }
 
-    await this.uploadDAO.setChunkUploaded(fileHash, chunkIndex, chunkHash)
+    await this.uploadDAO.setChunkUploaded({
+      fileHash,
+      chunkIndex,
+      chunkHash,
+      uploadPart: part
+    })
   }
 
   // %% mergeFileChunks %%
@@ -93,14 +98,8 @@ export class FileChunkService {
       throw new Error('文件分片上传未完成')
     }
 
-    const chunksHash = await this.uploadDAO
-      .queryChunksHash(fileHash)
-      .then((data) =>
-        Object.entries(data).map(([index, hash]) => ({
-          index: parseInt(index),
-          hash
-        }))
-      )
+    const chunksHash = await this.uploadDAO.queryChunksPartAndHash(fileHash)
+
     const uploadInfo = await this.uploadDAO.queryUploadInfo(fileHash)
     if (!uploadInfo) {
       throw new Error('未创建分片上传任务')
