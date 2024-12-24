@@ -93,7 +93,14 @@ export class FileChunkService {
       throw new Error('文件分片上传未完成')
     }
 
-    const chunksHash = await this.uploadDAO.queryChunksHash(fileHash)
+    const chunksHash = await this.uploadDAO
+      .queryChunksHash(fileHash)
+      .then((data) =>
+        Object.entries(data).map(([index, hash]) => ({
+          index: parseInt(index),
+          hash
+        }))
+      )
     const uploadInfo = await this.uploadDAO.queryUploadInfo(fileHash)
     if (!uploadInfo) {
       throw new Error('未创建分片上传任务')
@@ -102,7 +109,7 @@ export class FileChunkService {
     await this.s3.mergeFileChunks(
       uploadInfo.relativePath,
       uploadInfo.uploadId,
-      chunksHash.map((x, i) => ({ index: i, hash: x }))
+      chunksHash
     )
 
     await this.uploadDAO.deleteUpload(fileHash)

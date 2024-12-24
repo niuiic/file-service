@@ -51,7 +51,7 @@ export class S3Service {
     return this.client
       .initiateNewMultipartUpload(this.config.s3.bucket, relativePath, {})
       .then((uploadId) => ({
-        relativePath,
+        relativePath: join(this.config.s3.bucket, relativePath),
         uploadId
       }))
   }

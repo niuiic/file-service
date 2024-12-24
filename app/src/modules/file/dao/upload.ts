@@ -35,7 +35,6 @@ export class UploadDAO {
         chunkCount,
         relativePath
       })
-      .hset(getChunksKey(fileHash), {})
       .exec()
       .then(validateResults)
   }
@@ -49,6 +48,10 @@ export class UploadDAO {
       .exec()
       .then(validateResults)
       .then((results) => {
+        if ((results[0] as string[]).some(isNil)) {
+          return
+        }
+
         const [chunkCount, chunkSize] = results[0] as string[]
         const uploadedIndices = results[1] as string[]
 
@@ -93,7 +96,7 @@ export class UploadDAO {
     chunkIndex: number,
     chunkHash: string
   ) {
-    return this.cache.hset(getChunksKey(fileHash), chunkIndex, chunkHash)
+    return this.cache.hset(getChunksKey(fileHash), { [chunkIndex]: chunkHash })
   }
 
   // %% isReadyToMerge %%
@@ -131,8 +134,10 @@ export class UploadDAO {
   }
 
   // %% queryChunksHash %%
-  async queryChunksHash(fileHash: string): Promise<string[]> {
-    return this.cache.hvals(getChunksKey(fileHash))
+  async queryChunksHash(
+    fileHash: string
+  ): Promise<{ [index: string]: string }> {
+    return this.cache.hgetall(getChunksKey(fileHash))
   }
 }
 

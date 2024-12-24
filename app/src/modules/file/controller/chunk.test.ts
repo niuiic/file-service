@@ -15,7 +15,7 @@ describe('file chunk controller', () => {
 
   test('multipart upload', async () => {
     const fileName = new Date().toString()
-    const fileData = Buffer.from('0'.repeat(10 * 1024 ** 2))
+    const fileData = Buffer.from((0).toFixed(1).repeat(10 * 1024 ** 2))
     const fileHash = createHash('md5').update(fileData).digest('hex')
     const fileSize = fileData.length
 
