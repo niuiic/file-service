@@ -145,9 +145,9 @@ export class UploadDAO {
   async queryChunksPartAndHash(
     fileHash: string
   ): Promise<{ part: number; hash: string }[]> {
-    return this.cache.hgetall(getChunksKey(fileHash)).then((data) =>
-      Object.entries(data).map(([_, value]) => {
-        const [part, hash] = value.split('/')
+    return this.cache.hvals(getChunksKey(fileHash)).then((data) =>
+      data.map((x: string) => {
+        const [part, hash] = x.split('/')
         return { part: parseInt(part, 10), hash }
       })
     )
