@@ -71,10 +71,10 @@ classDiagram
     FileServiceController ..> ChunksInfo
     class FileServiceController {
         %% create
-        +uploadFileByBlob(fileData: blob, fileHash: string, fileName: string) FileInfo
+        +uploadFileByStream(fileData: stream, fileHash: string, fileName: string) FileInfo
         +uploadFileByHash(fileHash: string, fileName: string) FileInfo
         +requestFileChunks(fileHash: string, fileName: string, fileSize: number) ChunksInfo
-        +uploadFileChunk(chunkData: blob, chunkIndex: number, chunkHash: string, fileHash: string)
+        +uploadFileChunk(chunkData: stream, chunkIndex: number, chunkHash: string, fileHash: string)
         +mergeFileChunks(fileHash: string, fileName: string) FileInfo
         %% delete
         +deleteFile(fileId: string)
@@ -113,19 +113,6 @@ erDiagram
         timestamp create_time
         timestamp upload_time
         varchar(1024) relative_path
-    }
-
-    CHUNKS {
-        integer index PK
-        varchar(32) file_hash PK
-        varchar(32) hash
-        int size "以字节为单位"
-        boolean uploaded
-    }
-
-    MULTIPART_UPLOAD {
-        string file_hash PK
-        string upload_id
     }
 ```
 
