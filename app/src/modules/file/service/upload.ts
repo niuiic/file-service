@@ -3,6 +3,7 @@ import { S3Service } from '@/modules/s3/service/s3'
 import type { FileSchema } from '@/modules/db/schema'
 import { isNil } from '@/share/isNil'
 import { FilesDAO } from '../dao/files'
+import type { Readable } from 'stream'
 
 @Injectable()
 export class FileUploadService {
@@ -12,8 +13,8 @@ export class FileUploadService {
   ) {}
 
   // %% uploadFileByBlob %%
-  async uploadFileByBlob(
-    fileData: Buffer,
+  async uploadFileByStream(
+    fileData: Readable,
     fileHash: string,
     fileName: string
   ): Promise<FileSchema> {
@@ -29,7 +30,9 @@ export class FileUploadService {
       })
     }
 
-    const relativePath = await this.s3.uploadFileByBlob(
+    let fileSize = 0
+    fileData.on('data', (chunk) => (fileSize += chunk.length))
+    const relativePath = await this.s3.uploadFileByStream(
       fileData,
       fileName,
       fileHash
@@ -38,7 +41,7 @@ export class FileUploadService {
     return this.filesDAO.createFile({
       name: fileName,
       hash: fileHash,
-      size: fileData.length,
+      size: fileSize,
       uploadTime: new Date(),
       relativePath
     })

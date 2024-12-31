@@ -2,8 +2,6 @@ import { NestFactory } from '@nestjs/core'
 import type { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { FastifyAdapter } from '@nestjs/platform-fastify'
 import { AppModule } from './app.module'
-import multipart from '@fastify/multipart'
-import type { AppConfig } from './share/config'
 import { isMockMode } from './share/mode'
 
 const bootstrap = async () => {
@@ -11,9 +9,16 @@ const bootstrap = async () => {
     AppModule.forRoot(isMockMode()),
     new FastifyAdapter()
   )
-  await app.register(multipart as any, {
-    limits: { fileSize: app.get<AppConfig>('CONFIG').upload.maxBlobSize }
-  })
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .addContentTypeParser(
+      'application/octet-stream',
+      {
+        parseAs: 'buffer'
+      },
+      (_, body, done) => done(null, body)
+    )
   await app.listen({ host: '0.0.0.0', port: 3000 })
 }
 bootstrap().catch(() => {})

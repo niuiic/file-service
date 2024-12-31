@@ -3,7 +3,9 @@ import type { S3Client } from './client'
 import type { AppConfig } from '@/share/config'
 import type { SnowflakeIdGenerator } from 'snowflake-id'
 import { join } from 'path'
+import type { Readable } from 'stream'
 
+// % service %
 @Injectable()
 export class S3Service {
   // %% constructor %%
@@ -13,9 +15,9 @@ export class S3Service {
     @Inject('ID') private readonly idGenerator: SnowflakeIdGenerator
   ) {}
 
-  // %% uploadFileByBlob %%
-  async uploadFileByBlob(
-    fileData: Buffer,
+  // %% uploadFileByStream %%
+  async uploadFileByStream(
+    fileData: Readable,
     fileName: string,
     fileHash: string
   ): Promise<string> {
@@ -101,6 +103,7 @@ export class S3Service {
   }
 }
 
+// % extract %
 const getBucketAndFilePath = (relativePath: string) => {
   const [bucket, ...paths] = relativePath.split('/')
   const filePath = paths.join('/')
