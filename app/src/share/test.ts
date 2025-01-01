@@ -13,6 +13,11 @@ export const initTestApp = async () => {
           new FastifyAdapter()
         )
       )
+
+  // await app.register(multipart as any, {
+  //   limits: { fileSize: app.get<AppConfig>('CONFIG').upload.maxBlobSize }
+  // })
+
   app
     .getHttpAdapter()
     .getInstance()
@@ -21,10 +26,11 @@ export const initTestApp = async () => {
       {
         parseAs: 'buffer'
       },
-      (req, body, done) => {
-        return done(null, body)
+      (_request, _rawBody, done) => {
+        return done(null)
       }
     )
+
   await app.init()
   await app.getHttpAdapter().getInstance().ready()
 

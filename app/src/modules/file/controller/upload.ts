@@ -1,9 +1,10 @@
 import z from 'zod'
-import { Body, Controller, Inject, Post, Req } from '@nestjs/common'
+import { Body, Controller, Inject, Post, Query, Req } from '@nestjs/common'
 import type { FastifyRequest } from 'fastify'
 import { toFileInfo, type FileInfo } from './fileInfo'
 import { ZodValidationPipe } from '@/share/validate'
 import { FileUploadService } from '../service/upload'
+import { fileHashString, fileNameString } from '@/share/schema'
 
 // % controller %
 @Controller('file/upload')
@@ -16,23 +17,14 @@ export class FileUploadController {
 
   // %% uploadFileByStream %%
   @Post('stream')
-  async uploadFileByStream(@Req() req: FastifyRequest): Promise<FileInfo> {
-    const { promise, resolve, reject } = Promise.withResolvers<any>()
-
-    req.raw.on('data', (chunk) => {
-      const str = chunk.toString()
-    })
-    req.raw.on('end', () => {
-      resolve('hello')
-    })
-    req.raw.on('error', (err) => {
-      console.log(err)
-    })
-
-    return promise
-    // return this.fileUploadService
-    //   .uploadFileByStream(new Readable(), fileHash, fileName)
-    //   .then(toFileInfo)
+  async uploadFileByStream(
+    @Req() req: FastifyRequest,
+    @Query('fileHash', new ZodValidationPipe(fileHashString)) fileHash: string,
+    @Query('fileName', new ZodValidationPipe(fileNameString)) fileName: string
+  ): Promise<FileInfo> {
+    return this.fileUploadService
+      .uploadFileByStream(req.raw, fileHash, fileName)
+      .then(toFileInfo)
   }
 
   // %% uploadFileByHash %%

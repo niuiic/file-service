@@ -7,12 +7,13 @@ import type { Readable } from 'stream'
 
 @Injectable()
 export class FileUploadService {
+  // %% constructor %%
   constructor(
     @Inject(FilesDAO) private readonly filesDAO: FilesDAO,
     @Inject(S3Service) private readonly s3: S3Service
   ) {}
 
-  // %% uploadFileByBlob %%
+  // %% uploadFileByStream %%
   async uploadFileByStream(
     fileData: Readable,
     fileHash: string,
@@ -31,7 +32,18 @@ export class FileUploadService {
     }
 
     let fileSize = 0
-    fileData.on('data', (chunk) => (fileSize += chunk.length))
+    fileData.on('end', () => {
+      console.log()
+    })
+    fileData.on('close', () => {
+      console.log()
+    })
+    fileData.on('error', (e) => {
+      console.log(e)
+    })
+    fileData.on('data', (chunk) => {
+      return (fileSize += chunk.length)
+    })
     const relativePath = await this.s3.uploadFileByStream(
       fileData,
       fileName,

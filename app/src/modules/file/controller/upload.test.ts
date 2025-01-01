@@ -40,7 +40,7 @@ describe('file upload controller', () => {
         .post('/file/upload/stream')
         .query({
           fileHash,
-          fileName: 'test.txt'
+          fileName: 'test2.txt'
         })
         .send(fileData)
         .then((x) => {
@@ -50,10 +50,8 @@ describe('file upload controller', () => {
           expect(newFileInfo.name).not.toBe(fileInfo.name)
         })
 
-    await uploadFile().catch((e) => {
-      console.log(e)
-    })
-    // await uploadSameFile()
+    await uploadFile()
+    await uploadSameFile()
   })
 
   // %% uploadFileByHash %%
