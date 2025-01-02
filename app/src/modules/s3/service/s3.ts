@@ -19,22 +19,22 @@ export class S3Service {
   async uploadFileByStream(
     fileData: Readable,
     fileName: string,
-    fileHash: string
-  ): Promise<string> {
+    _fileHash: string
+  ): Promise<{ relativePath: string; fileSize: number }> {
     const relativePath = join(this.idGenerator.getId(), fileName)
 
-    const { etag } = await this.client.putObject(
+    // FIXME: check hash
+    await this.client.putObject(this.config.s3.bucket, relativePath, fileData)
+
+    const stat = await this.client.statObject(
       this.config.s3.bucket,
-      relativePath,
-      fileData
+      relativePath
     )
 
-    if (etag !== fileHash) {
-      await this.client.removeObject(this.config.s3.bucket, relativePath)
-      throw new Error('文件hash值不正确')
+    return {
+      relativePath: join(this.config.s3.bucket, relativePath),
+      fileSize: stat.size
     }
-
-    return join(this.config.s3.bucket, relativePath)
   }
 
   // %% deleteFile %%

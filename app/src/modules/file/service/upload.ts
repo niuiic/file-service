@@ -31,20 +31,7 @@ export class FileUploadService {
       })
     }
 
-    let fileSize = 0
-    fileData.on('end', () => {
-      console.log()
-    })
-    fileData.on('close', () => {
-      console.log()
-    })
-    fileData.on('error', (e) => {
-      console.log(e)
-    })
-    fileData.on('data', (chunk) => {
-      return (fileSize += chunk.length)
-    })
-    const relativePath = await this.s3.uploadFileByStream(
+    const { relativePath, fileSize } = await this.s3.uploadFileByStream(
       fileData,
       fileName,
       fileHash
