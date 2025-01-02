@@ -16,30 +16,32 @@ export class FileUploadService {
   // %% uploadFileByStream %%
   async uploadFileByStream(
     fileData: Readable,
-    fileHash: string,
-    fileName: string
+    fileName: string,
+    fileHash?: string
   ): Promise<FileSchema> {
-    const files = await this.filesDAO.queryFilesByHash(fileHash)
-    if (files.length > 0) {
-      return this.uploadFileByHash({
-        fileHash,
-        fileName,
-        skipCheck: true,
-        uploadTime: files[0].uploadTime,
-        fileSize: files[0].size,
-        relativePath: files[0].relativePath
-      })
+    if (fileHash) {
+      const files = await this.filesDAO.queryFilesByHash(fileHash)
+      if (files.length > 0) {
+        return this.uploadFileByHash({
+          fileHash,
+          fileName,
+          skipCheck: true,
+          uploadTime: files[0].uploadTime,
+          fileSize: files[0].size,
+          relativePath: files[0].relativePath
+        })
+      }
     }
 
-    const { relativePath, fileSize } = await this.s3.uploadFileByStream(
-      fileData,
-      fileName,
-      fileHash
-    )
+    const {
+      relativePath,
+      fileSize,
+      fileHash: hash
+    } = await this.s3.uploadFileByStream(fileData, fileName, fileHash)
 
     return this.filesDAO.createFile({
       name: fileName,
-      hash: fileHash,
+      hash: hash,
       size: fileSize,
       uploadTime: new Date(),
       relativePath

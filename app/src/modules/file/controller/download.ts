@@ -15,9 +15,7 @@ export class FileDownloadController {
   // %% downloadFile %%
   @Get(':id')
   @Redirect()
-  async downloadFile(
-    @Param('id', new ZodValidationPipe(idString())) id: string
-  ) {
+  async downloadFile(@Param('id', new ZodValidationPipe(idString)) id: string) {
     const url = await this.fileQueryService.queryFileUrlById(id)
     return { url }
   }

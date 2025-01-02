@@ -18,7 +18,7 @@ export class FileQueryController {
   // %% queryFileById %%
   @Get('single')
   async queryFileById(
-    @Query('id', new ZodValidationPipe(idString())) id: string
+    @Query('id', new ZodValidationPipe(idString)) id: string
   ): Promise<FileInfo | undefined> {
     return this.fileQueryService
       .queryFileById(id)
@@ -28,7 +28,7 @@ export class FileQueryController {
   // %% queryFilesById %%
   @Post('batch')
   async queryFilesById(
-    @Body(new ZodValidationPipe(z.array(idString()))) ids: string[]
+    @Body(new ZodValidationPipe(z.array(idString))) ids: string[]
   ): Promise<FileInfo[]> {
     return this.fileQueryService
       .queryFilesById(ids)
@@ -38,7 +38,7 @@ export class FileQueryController {
   // %% isFileUploaded %%
   @Get('exist')
   async isFileUploaded(
-    @Query('hash', new ZodValidationPipe(idString())) hash: string
+    @Query('hash', new ZodValidationPipe(idString)) hash: string
   ): Promise<boolean> {
     return this.fileQueryService.queryFileByHash(hash).then(Boolean)
   }

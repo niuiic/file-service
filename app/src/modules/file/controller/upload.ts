@@ -4,7 +4,7 @@ import type { FastifyRequest } from 'fastify'
 import { toFileInfo, type FileInfo } from './fileInfo'
 import { ZodValidationPipe } from '@/share/validate'
 import { FileUploadService } from '../service/upload'
-import { fileHashString, fileNameString } from '@/share/schema'
+import { fileHashString, fileNameString, nil } from '@/share/schema'
 
 // % controller %
 @Controller('file/upload')
@@ -19,11 +19,12 @@ export class FileUploadController {
   @Post('stream')
   async uploadFileByStream(
     @Req() req: FastifyRequest,
-    @Query('fileHash', new ZodValidationPipe(fileHashString)) fileHash: string,
-    @Query('fileName', new ZodValidationPipe(fileNameString)) fileName: string
+    @Query('fileName', new ZodValidationPipe(fileNameString)) fileName: string,
+    @Query('fileHash', new ZodValidationPipe(fileHashString.or(nil)))
+    fileHash?: string
   ): Promise<FileInfo> {
     return this.fileUploadService
-      .uploadFileByStream(req.raw, fileHash, fileName)
+      .uploadFileByStream(req.raw, fileName, fileHash)
       .then(toFileInfo)
   }
 

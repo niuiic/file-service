@@ -3,7 +3,8 @@ import type { S3Client } from './client'
 import type { AppConfig } from '@/share/config'
 import type { SnowflakeIdGenerator } from 'snowflake-id'
 import { join } from 'path'
-import type { Readable } from 'stream'
+import { createHash } from 'crypto'
+import { Transform, type Readable } from 'stream'
 
 // % service %
 @Injectable()
@@ -19,21 +20,36 @@ export class S3Service {
   async uploadFileByStream(
     fileData: Readable,
     fileName: string,
-    _fileHash: string
-  ): Promise<{ relativePath: string; fileSize: number }> {
+    fileHash?: string
+  ): Promise<{ relativePath: string; fileSize: number; fileHash: string }> {
     const relativePath = join(this.idGenerator.getId(), fileName)
 
-    // FIXME: check hash
-    await this.client.putObject(this.config.s3.bucket, relativePath, fileData)
-
-    const stat = await this.client.statObject(
+    let fileSize = 0
+    const hash = createHash('md5')
+    const stream = new Transform({
+      transform(chunk, _, callback) {
+        hash.update(chunk)
+        this.push(chunk)
+        fileSize += chunk.length
+        callback()
+      }
+    })
+    await this.client.putObject(
       this.config.s3.bucket,
-      relativePath
+      relativePath,
+      fileData.pipe(stream)
     )
+
+    const hashValue = hash.digest('hex')
+    if (fileHash && fileHash !== hashValue) {
+      await this.client.removeObject(this.config.s3.bucket, relativePath)
+      throw new Error('hash值不正确')
+    }
 
     return {
       relativePath: join(this.config.s3.bucket, relativePath),
-      fileSize: stat.size
+      fileSize,
+      fileHash: hashValue
     }
   }
 
