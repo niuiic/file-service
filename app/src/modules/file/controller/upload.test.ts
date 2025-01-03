@@ -15,12 +15,11 @@ describe('file upload controller', () => {
   afterAll(() => app.close())
 
   // %% uploadFileByStream %%
-  test('uploadFileByStream', async () => {
+  test('uploadFileByStream', () => {
     const fileData = new Date().toString().repeat(100)
     const fileHash = createHash('md5').update(fileData).digest('hex')
 
-    const { promise, resolve } = Promise.withResolvers()
-    setTimeout(() => resolve(undefined), 4000)
+    const { promise, resolve, reject } = Promise.withResolvers()
     const readable = new Readable({
       read() {
         this.push(fileData)
@@ -28,15 +27,17 @@ describe('file upload controller', () => {
       }
     })
 
-    readable.pipe(
-      request(app.getHttpServer())
-        .post('/file/upload/stream')
-        .set('Content-Type', 'application/octet-stream')
-        .query({
-          fileHash,
-          fileName: 'test.txt'
-        }) as unknown as Writable
-    )
+    const req = request(app.getHttpServer())
+      .post('/file/upload/stream')
+      .set('Content-Type', 'application/octet-stream')
+      .query({
+        fileHash,
+        fileName: 'test.txt'
+      })
+    req.on('error', reject)
+    req.on('end', resolve)
+
+    readable.pipe(req as unknown as Writable)
 
     return promise
   })
