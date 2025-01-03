@@ -26,7 +26,7 @@ export class S3Service {
 
     let fileSize = 0
     const hash = createHash('md5')
-    const stream = new Transform({
+    const transform = new Transform({
       transform(chunk, _, callback) {
         hash.update(chunk)
         this.push(chunk)
@@ -37,7 +37,7 @@ export class S3Service {
     await this.client.putObject(
       this.config.s3.bucket,
       relativePath,
-      fileData.pipe(stream)
+      fileData.pipe(transform)
     )
 
     const hashValue = hash.digest('hex')
