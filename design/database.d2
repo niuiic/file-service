@@ -1,0 +1,65 @@
+grid-rows: 3
+
+files: files(pg) {
+  shape: sql_table
+
+  id: bigint {
+    constraint: PK
+  }
+  name: varchar(255) {
+    constraint: NOT NULL
+  }
+  hash: varchar(32) {
+    constraint: NOT NULL
+  }
+  size: int {
+    constraint: NOT NULL
+  }
+  relative_path: varchar(1024) {
+    constraint: NOT NULL
+  }
+  create_time: timestamp {
+    constraint: NOT NULL
+  }
+  upload_time: timestamp {
+    constraint: NOT NULL
+  }
+  expiry_time: timestamp
+  variant: varchar(32)
+  origin_hash: varchar(255)
+}
+
+upload: upload(redis) {
+  key: {
+    explanation: |md
+      FILESERVICE:UPLOAD:${fileHash}
+    |
+  }
+
+  value: {
+    shape: sql_table
+
+    fileHash: string
+    fileSize: string
+    uploadId: string
+    chunkSize: string
+    chunkCount: string
+    relativePath: string
+  }
+}
+
+chunks: chunks(redis) {
+  key: {
+    explanation: |md
+      FILESERVICE:CHUNKS:${fileHash}
+    |
+  }
+
+  value: {
+    explanation: |md
+      - type: hash
+      - key: chunkIndex
+      - value: ${uploadPart}/${chunkHash}
+    |
+  }
+}

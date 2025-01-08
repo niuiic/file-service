@@ -1,0 +1,204 @@
+...@classes
+
+direction: right
+
+# % deleteFile %
+deleteFile: {
+  start: {
+    shape: oval
+  }
+  error: notify error
+  error -> end
+  end: {
+    shape: oval
+  }
+
+  start -> n1
+
+  n1: has file {
+    shape: diamond
+  }
+  n1 -> error: N
+  n1 -> n2: Y
+
+  n2: delete file record in database
+  n2 -> n3
+
+  n3: has other file with same hash
+  n3 -> end: Y
+  n3 -> n4: N
+
+  n4: delete file in s3 service
+  n4 -> n5
+
+  n5: has variant {
+    shape: diamond
+  }
+  n5 -> end: N
+  n5 -> n6: Y
+
+  n6: delete variant in both s3 service and database
+  n6 -> end
+}
+
+# % downloadFile %
+downloadFile: {
+  start: {
+    shape: oval
+  }
+  error: notify error
+  error -> end
+  end: {
+    shape: oval
+  }
+
+  start -> n1
+
+  n1: has file {
+    shape: diamond
+  }
+  n1 -> error: N
+  n1 -> n2: Y
+
+  n2: request variant {
+    shape: diamond
+  }
+  n2 -> n3: Y
+  n2 -> n4: N
+
+  n4: return origin file in stream
+  n4 -> end
+
+  n3: has variant {
+    shape: diamond
+  }
+  n3 -> n5: Y
+  n3 -> n4: N
+
+  n5: return variant in stream
+  n5 -> end
+}
+
+# % createFileVariant %
+createFileVariant: {
+  start: {
+    shape: oval
+  }
+  error: notify error
+  error -> end
+  end: {
+    shape: oval
+  }
+
+  start -> n1
+
+  n1: has origin file {
+    shape: diamond
+  }
+  n1 -> error: N
+  n1 -> n2: Y
+
+  n2: request file stream
+  n2 -> n3
+
+  n3: transform file stream
+  n3 -> n4
+
+  n4: upload file by stream
+  n4 -> end
+}
+
+# % uploadFileByStream %
+uploadFileByStream: {
+  start: {
+    shape: oval
+  }
+  error: notify error
+  error -> end
+  end: {
+    shape: oval
+  }
+
+  start -> n1
+  n1: has file with same hash {
+    shape: diamond
+  }
+  n1 -> n2: N
+  n1 -> n3: Y
+
+  n3: record file info into database
+  n3 -> end
+
+  n2: upload file stream to s3 service
+  n2 -> n4
+
+  n4: provide hash {
+    shape: diamond
+  }
+  n4 -> n6: Y
+  n4 -> n3: N
+
+  n6: calculate hash
+  n6 -> n5
+
+  n5: hash correct {
+    shape: diamond
+  }
+  n5 -> error: N
+  n5 -> n3: Y
+}
+
+# % uploadFileByHash %
+uploadFileByHash: {
+  start: {
+    shape: oval
+  }
+  error: notify error
+  error -> end
+  end: {
+    shape: oval
+  }
+
+  start -> n1
+
+  n1: has file with same hash {
+    shape: diamond
+  }
+  n1 -> error: N
+  n1 -> n2: Y
+
+  n2: create new file record in database
+  n2 -> n3
+
+  n3: request to create variant {
+    shape: diamond
+  }
+  n3 -> n4: Y
+  n3 -> n5: N
+
+  n4: create variant
+  n4 -> end
+}
+
+# % isFileUploaded %
+isFileUploaded: {
+  start: {
+    shape: oval
+  }
+  end: {
+    shape: oval
+  }
+
+  start -> n1
+
+  n1: has file with same hash {
+    shape: diamond
+  }
+  n1 -> n2: Y
+  n1 -> end: N
+
+  n2: is file expired {
+    shape: diamond
+  }
+  n2 -> end
+}

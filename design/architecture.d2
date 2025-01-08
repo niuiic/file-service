@@ -1,0 +1,23 @@
+direction: right
+
+gateway
+
+file_service
+
+database: {
+  shape: cylinder
+}
+
+cache: {
+  shape: cylinder
+}
+
+s3_service: {
+  shape: cloud
+}
+
+gateway -- file_service
+
+file_service -- database
+file_service -- cache
+file_service -- s3_service

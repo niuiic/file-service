@@ -1,0 +1,55 @@
+...@classes
+
+FileService: {
+  shape: class
+
+  # create
+  uploadFileByStream(fileData stream, fileHash? string, fileName string, variants? Variant\[\], lifetime? number): FileInfo
+  uploadFileByHash(fileHash string, fileName string, variants? Variant\[\], lifetime? number): FileInfo
+  requestFileChunks(fileHash string, fileName string, fileSize number): ChunksInfo
+  uploadFileChunk(chunkData stream, chunkIndex number, chunkHash string, fileHash string)
+  mergeFileChunks(fileHash string, fileName string, variants? Variant\[\], lifetime? number): FileInfo
+  -createFileVariant(fileHash string, variant Variant): FileInfo
+  # delete
+  deleteFile(fileId string)
+  # query
+  queryFileInfo(fileId string): FileInfo
+  queryFilesInfo(fileIds string\[\]): "FileInfo[]"
+  isFileUploaded(fileHash string, variant? Variant): boolean
+  downloadFile(fileId string, variant? Variant)
+}
+FileService -> FileInfo: {
+  class: depends
+}
+FileService -> ChunksInfo: {
+  class: depends
+}
+FileService -> Variant: {
+  class: depends
+}
+
+FileInfo: {
+  shape: class
+
+  id: string
+  name: string
+  size: number
+  uploadTime: Date
+  relativePath: string
+  variant?: Variant
+}
+
+ChunksInfo: {
+  shape: class
+
+  uploadedIndices: "number[]"
+  count: number
+  chunkSize: number
+}
+
+Variant: Enum Variant {
+  shape: class
+
+  IMAGE_COMPRESSED
+  ZIP_COMPRESSED
+}

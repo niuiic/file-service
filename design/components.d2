@@ -1,0 +1,112 @@
+...@classes
+
+# % FileQueryController %
+FileQueryController -> FileQueryService: {
+  class: combine
+}
+FileQueryController -> FileDownloadService: {
+  class: combine
+}
+
+# %% FileQueryService %%
+FileQueryService -> FilesDAO: {
+  class: combine
+}
+FilesDAO -> DBModule.DB: {
+  class: combine
+}
+
+# %% FileDownloadService %%
+FileDownloadService -> FilesDAO: {
+  class: combine
+}
+FileDownloadService -> S3Module.S3Service: {
+  class: combine
+}
+
+# % FileDeleteController %
+FileDeleteController -> FileDeleteService: {
+  class: combine
+}
+
+# %% FileDeleteService %%
+FileDeleteService -> FilesDAO: {
+  class: combine
+}
+FileDeleteService -> S3Module.S3Service: {
+  class: combine
+}
+
+# % FileUploadController %
+FileUploadController -> FileStreamUploadService: {
+  class: combine
+}
+FileUploadController -> FileMultipartUploadService: {
+  class: combine
+}
+FileUploadController -> FileCreateVariantService: {
+  class: combine
+}
+
+# %% FileStreamUploadService %%
+FileStreamUploadService -> FilesDAO: {
+  class: combine
+}
+FileStreamUploadService -> IdModule.ID: {
+  class: combine
+}
+FileStreamUploadService -> S3Module.S3Service: {
+  class: combine
+}
+
+# %% FileMultipartUploadService %%
+FileMultipartUploadService -> FilesDAO: {
+  class: combine
+}
+FileMultipartUploadService -> IdModule.ID: {
+  class: combine
+}
+FileMultipartUploadService -> S3Module.S3Service: {
+  class: combine
+}
+FileMultipartUploadService -> UploadDAO: {
+  class: combine
+}
+FileMultipartUploadService -> ChunksDAO: {
+  class: combine
+}
+UploadDAO -> CacheModule.CACHE: {
+  class: combine
+}
+ChunksDAO -> CacheModule.CACHE: {
+  class: combine
+}
+
+# %% FileCreateVariantService %%
+FileCreateVariantService -> FilesDAO: {
+  class: combine
+}
+FileCreateVariantService -> IdModule.ID: {
+  class: combine
+}
+FileCreateVariantService -> S3Module.S3Service: {
+  class: combine
+}
+
+# % other %
+IdModule.ID -> ConfigModule.CONFIG: {
+  class: combine
+}
+DBModule.DB -> ConfigModule.CONFIG: {
+  class: combine
+}
+S3Module.S3Service -> ConfigModule.CONFIG: {
+  class: combine
+}
+CacheModule.CACHE -> ConfigModule.CONFIG: {
+  class: combine
+}
+
+IdModule: {
+  near: bottom-center
+}
