@@ -72,16 +72,10 @@ FileModule.FileMultipartUploadService -> IdModule.IdService: {
 FileModule.FileMultipartUploadService -> S3Module.S3Service: {
   class: combine
 }
-FileModule.FileMultipartUploadService -> FileModule.UploadDAO: {
+FileModule.FileMultipartUploadService -> FileModule.MultipartUploadDAO: {
   class: combine
 }
-FileModule.FileMultipartUploadService -> FileModule.ChunksDAO: {
-  class: combine
-}
-FileModule.UploadDAO -> CacheModule.Cache: {
-  class: combine
-}
-FileModule.ChunksDAO -> CacheModule.Cache: {
+FileModule.MultipartUploadDAO -> CacheModule.Cache: {
   class: combine
 }
 

@@ -3,13 +3,13 @@ import { Global, Module } from '@nestjs/common'
 import Redis from 'ioredis'
 import { Providers } from '../symbol'
 
-export type Cache = Redis
+export type CacheClient = Redis
 
 @Global()
 @Module({
   providers: [
     {
-      provide: Providers.Cache,
+      provide: Providers.CacheClient,
       useFactory: (config: AppConfig) =>
         new Redis({
           port: config.cache.port,
@@ -21,6 +21,6 @@ export type Cache = Redis
       inject: [Providers.Config]
     }
   ],
-  exports: [Providers.Cache]
+  exports: [Providers.CacheClient]
 })
 export class CacheModule {}
