@@ -20,12 +20,12 @@ const appConfigSchema = z.object({
     database: z.number()
   }),
   s3: z.object({
+    region: z.string(),
     endPoint: z.string(),
-    port: z.number(),
-    useSSL: z.boolean(),
     accessKey: z.string(),
     secretKey: z.string(),
-    bucket: z.string()
+    bucket: z.string(),
+    forcePathStyle: z.boolean()
   }),
   upload: z.object({
     chunkSize: z.number().min(5 * 1024 ** 2, 'chunkSize不能小于5M'),

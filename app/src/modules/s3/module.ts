@@ -1,14 +1,15 @@
 import { Global, Module } from '@nestjs/common'
 import { S3Service } from './service/s3'
 import { newClient } from './service/client'
+import { Providers } from '../symbol'
 
 @Global()
 @Module({
   providers: [
     {
-      provide: 'CLIENT',
+      provide: Providers.S3Client,
       useFactory: newClient,
-      inject: ['CONFIG']
+      inject: [Providers.Config]
     },
     S3Service
   ],
