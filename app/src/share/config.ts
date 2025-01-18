@@ -29,7 +29,6 @@ const appConfigSchema = z.object({
   }),
   upload: z.object({
     chunkSize: z.number().min(5 * 1024 ** 2, 'chunkSize不能小于5M'),
-    maxChunkCount: z.number(),
     acceptedFileTypes: z.array(z.string())
   }),
   machineId: z

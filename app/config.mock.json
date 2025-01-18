@@ -13,20 +13,19 @@
     "port": 6379,
     "username": "",
     "password": "a",
-    "db": 1
+    "database": 1
   },
   "s3": {
-    "endPoint": "127.0.0.1",
-    "port": 9000,
-    "useSSL": false,
+    "region": "cn-north-1",
+    "endPoint": "http://127.0.0.1:9000",
     "accessKey": "minioadmin",
     "secretKey": "minioadmin",
-    "bucket": "file-service-mock"
+    "bucket": "file-service-mock",
+    "forcePathStyle": true
   },
   "upload": {
-    "maxBlobSize": 10485760,
-    "chunkSize": 5242880
+    "chunkSize": 5242880,
+    "acceptedFileTypes": [".jpg"]
   },
-  "machineId": 1,
-  "clusterId": 1
+  "machineId": 1
 }
