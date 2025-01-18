@@ -1,5 +1,4 @@
 import { readFileSync } from 'fs'
-import { parse } from 'json-bigint'
 import { join } from 'path'
 import { z } from 'zod'
 
@@ -18,7 +17,7 @@ const appConfigSchema = z.object({
     port: z.number(),
     username: z.string(),
     password: z.string(),
-    db: z.number()
+    database: z.number()
   }),
   s3: z.object({
     endPoint: z.string(),
@@ -29,19 +28,20 @@ const appConfigSchema = z.object({
     bucket: z.string()
   }),
   upload: z.object({
-    maxBlobSize: z.number(),
-    chunkSize: z.number()
+    chunkSize: z.number().min(5 * 1024 ** 2, 'chunkSize不能小于5M'),
+    maxChunkCount: z.number(),
+    acceptedFileTypes: z.array(z.string())
   }),
-  clusterId: z.bigint(),
-  machineId: z.bigint()
+  machineId: z
+    .number()
+    .min(0, 'machineId不能小于0')
+    .max(2 ** 6 - 1, 'machineId不能超过63')
 })
 
 export type AppConfig = z.infer<typeof appConfigSchema>
 
 export const loadConfig = (configPath: string): AppConfig => {
-  const config = parse(readFileSync(configPath).toString())
-  config.clusterId = BigInt(config.clusterId)
-  config.machineId = BigInt(config.machineId)
+  const config = JSON.parse(readFileSync(configPath).toString())
   return appConfigSchema.parse(config)
 }
 
