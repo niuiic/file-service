@@ -78,8 +78,8 @@ export class FilesDAO {
       )
   }
 
-  // %% queryFilesByOriginHash %%
-  async queryFilesByOriginHash(hash: string) {
+  // %% queryVariantsByOriginHash %%
+  async queryVariantsByOriginHash(hash: string) {
     return this.dbClient
       .select()
       .from(fileSchema)
