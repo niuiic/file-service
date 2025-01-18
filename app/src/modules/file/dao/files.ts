@@ -1,4 +1,4 @@
-import type { DB, DBSchema } from '@/modules/db/module'
+import type { DBClient, DBSchema } from '@/modules/db/module'
 import type { FileSchema } from '@/modules/db/schema'
 import { fileSchema } from '@/modules/db/schema'
 import { Inject, Injectable } from '@nestjs/common'
@@ -10,7 +10,7 @@ import type { SnowflakeIdGenerator } from 'snowflake-id'
 export class FilesDAO {
   // %% constructor %%
   constructor(
-    @Inject('DB') private readonly db: DB,
+    @Inject('DB') private readonly db: DBClient,
     @Inject('DB_SCHEMA') private readonly schema: DBSchema,
     @Inject('ID') private readonly idGenerator: SnowflakeIdGenerator
   ) {}

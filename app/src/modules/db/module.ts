@@ -5,10 +5,11 @@ import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 import { getDBUrl } from './url'
 import type { AppConfig } from '@/share/config'
+import { Providers } from '../symbol'
 
 export type DBSchema = typeof schema
 
-export type DB = NodePgDatabase<DBSchema> & {
+export type DBClient = NodePgDatabase<DBSchema> & {
   $client: Pool
 }
 
@@ -16,7 +17,7 @@ export type DB = NodePgDatabase<DBSchema> & {
 @Module({
   providers: [
     {
-      provide: 'DB',
+      provide: Providers.DBClient,
       useFactory: (config: AppConfig) =>
         drizzle({
           client: new Pool({
@@ -26,13 +27,13 @@ export type DB = NodePgDatabase<DBSchema> & {
           casing: 'snake_case',
           schema
         }),
-      inject: ['CONFIG']
+      inject: [Providers.Config]
     },
     {
-      provide: 'DB_SCHEMA',
+      provide: Providers.DBSchema,
       useValue: schema
     }
   ],
-  exports: ['DB', 'DB_SCHEMA']
+  exports: [Providers.DBClient, Providers.DBSchema]
 })
 export class DBModule {}

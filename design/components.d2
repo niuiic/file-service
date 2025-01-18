@@ -12,7 +12,10 @@ FileModule.FileQueryController -> FileModule.FileDownloadService: {
 FileModule.FileQueryService -> FileModule.FilesDAO: {
   class: combine
 }
-FileModule.FilesDAO -> DBModule.Database: {
+FileModule.FilesDAO -> DBModule.DBClient: {
+  class: combine
+}
+FileModule.FilesDAO -> DBModule.DBSchema: {
   class: combine
 }
 
@@ -97,7 +100,7 @@ FileModule.FileCreateVariantService -> S3Module.S3Service: {
 IdModule.IdService -> ConfigModule.Config: {
   class: combine
 }
-DBModule.Database -> ConfigModule.Config: {
+DBModule.DBClient -> ConfigModule.Config: {
   class: combine
 }
 S3Module.S3Service -> ConfigModule.Config: {

@@ -1,14 +1,12 @@
 import {
-  boolean,
   customType,
   integer,
   timestamp,
   varchar,
-  primaryKey,
   pgTable
 } from 'drizzle-orm/pg-core'
 
-const customBigint = customType<{
+const bigint = customType<{
   data: string
   driverData: bigint
 }>({
@@ -23,28 +21,17 @@ const customBigint = customType<{
   }
 })
 
-export const chunkSchema = pgTable(
-  'chunks',
-  {
-    index: integer().notNull(),
-    fileHash: varchar().notNull(),
-    createTime: timestamp({ withTimezone: true }).notNull(),
-    uploadTime: timestamp({ withTimezone: true }),
-    uploaded: boolean().notNull()
-  },
-  (table) => [{ pk: primaryKey({ columns: [table.index, table.fileHash] }) }]
-)
-
-export type ChunkSchema = typeof chunkSchema.$inferInsert
-
 export const fileSchema = pgTable('files', {
-  id: customBigint().primaryKey(),
+  id: bigint().primaryKey(),
   name: varchar({ length: 255 }).notNull(),
   hash: varchar({ length: 32 }).notNull(),
   size: integer().notNull(),
+  relativePath: varchar({ length: 1024 }).notNull(),
   createTime: timestamp({ withTimezone: true }).notNull(),
   uploadTime: timestamp({ withTimezone: true }).notNull(),
-  relativePath: varchar({ length: 1024 }).notNull()
+  expiryTime: timestamp({ withTimezone: true }),
+  variant: varchar({ length: 32 }),
+  origin_hash: varchar({ length: 32 })
 })
 
 export type FileSchema = typeof fileSchema.$inferInsert
