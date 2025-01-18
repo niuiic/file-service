@@ -57,9 +57,9 @@ chunks: chunks(redis) {
 
   value: {
     explanation: |md
-      - type: hash
-      - key: chunkIndex
-      - value: ${uploadPart}/${chunkHash}
+      - type: array
+      - index: chunkIndex
+      - value: ${chunkHash}
     |
   }
 }

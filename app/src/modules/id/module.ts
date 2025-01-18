@@ -1,9 +1,9 @@
 import { Global, Module } from '@nestjs/common'
-import { Id } from './id.service'
+import { IdService } from './id.service'
 
 @Global()
 @Module({
-  providers: [Id],
-  exports: [Id]
+  providers: [IdService],
+  exports: [IdService]
 })
 export class IdModule {}

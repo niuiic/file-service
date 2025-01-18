@@ -37,7 +37,7 @@ export class FileUploadService {
       relativePath,
       fileSize,
       fileHash: hash
-    } = await this.s3.uploadFileByStream(fileData, fileName, fileHash)
+    } = await this.s3.uploadFileByStream({ fileData, fileName, fileHash })
 
     return this.filesDAO.createFile({
       name: fileName,

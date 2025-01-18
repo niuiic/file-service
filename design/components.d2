@@ -52,7 +52,7 @@ FileModule.FileUploadController -> FileModule.FileCreateVariantService: {
 FileModule.FileStreamUploadService -> FileModule.FilesDAO: {
   class: combine
 }
-FileModule.FileStreamUploadService -> IdModule.Id: {
+FileModule.FileStreamUploadService -> IdModule.IdService: {
   class: combine
 }
 FileModule.FileStreamUploadService -> S3Module.S3Service: {
@@ -63,7 +63,7 @@ FileModule.FileStreamUploadService -> S3Module.S3Service: {
 FileModule.FileMultipartUploadService -> FileModule.FilesDAO: {
   class: combine
 }
-FileModule.FileMultipartUploadService -> IdModule.Id: {
+FileModule.FileMultipartUploadService -> IdModule.IdService: {
   class: combine
 }
 FileModule.FileMultipartUploadService -> S3Module.S3Service: {
@@ -86,7 +86,7 @@ FileModule.ChunksDAO -> CacheModule.Cache: {
 FileModule.FileCreateVariantService -> FileModule.FilesDAO: {
   class: combine
 }
-FileModule.FileCreateVariantService -> IdModule.Id: {
+FileModule.FileCreateVariantService -> IdModule.IdService: {
   class: combine
 }
 FileModule.FileCreateVariantService -> S3Module.S3Service: {
@@ -94,7 +94,7 @@ FileModule.FileCreateVariantService -> S3Module.S3Service: {
 }
 
 # % other %
-IdModule.Id -> ConfigModule.Config: {
+IdModule.IdService -> ConfigModule.Config: {
   class: combine
 }
 DBModule.Database -> ConfigModule.Config: {

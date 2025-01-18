@@ -3,18 +3,13 @@ import { Inject, Injectable } from '@nestjs/common'
 import { Providers } from '../symbol'
 
 @Injectable()
-export class Id {
+export class IdService {
+  // %% constructor %%
   constructor(@Inject(Providers.Config) config: AppConfig) {
     this.machineId = BigInt(config.machineId)
   }
 
-  private readonly machineIdLeftShift = 16n
-  private readonly timestampLeftShift = 22n
-
-  private timestamp = 0n
-  private sequence = 0n
-  private machineId = 0n
-
+  // %% generateId %%
   generateId(): string {
     const timestamp = BigInt(new Date().getTime())
     if (timestamp === this.timestamp) {
@@ -33,4 +28,11 @@ export class Id {
     id |= this.sequence
     return id.toString()
   }
+
+  private readonly machineIdLeftShift = 16n
+  private readonly timestampLeftShift = 22n
+
+  private timestamp = 0n
+  private sequence = 0n
+  private machineId = 0n
 }

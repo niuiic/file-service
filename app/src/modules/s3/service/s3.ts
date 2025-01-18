@@ -1,77 +1,121 @@
 import { Inject, Injectable } from '@nestjs/common'
-import type { S3Client } from './client'
+import {
+  CompleteMultipartUploadCommand,
+  CreateMultipartUploadCommand,
+  DeleteObjectCommand,
+  GetObjectCommand,
+  UploadPartCommand,
+  type S3Client
+} from '@aws-sdk/client-s3'
 import type { AppConfig } from '@/share/config'
-import type { SnowflakeIdGenerator } from 'snowflake-id'
 import { join } from 'path'
+import { Upload } from '@aws-sdk/lib-storage'
 import { createHash } from 'crypto'
 import { Transform, type Readable } from 'stream'
+import { Providers } from '@/modules/symbol'
+import { IdService } from '@/modules/id/id.service'
+import { isNil } from '@/share/isNil'
+import assert from 'assert'
 
 // % service %
 @Injectable()
 export class S3Service {
   // %% constructor %%
   constructor(
-    @Inject('CLIENT') private readonly client: S3Client,
-    @Inject('CONFIG') private readonly config: AppConfig,
-    @Inject('ID') private readonly idGenerator: SnowflakeIdGenerator
+    @Inject(Providers.S3Client) private readonly client: S3Client,
+    @Inject(Providers.Config) private readonly config: AppConfig,
+    @Inject(IdService) private readonly idGenerator: IdService
   ) {}
 
   // %% uploadFileByStream %%
-  async uploadFileByStream(
-    fileData: Readable,
-    fileName: string,
+  async uploadFileByStream({
+    fileData,
+    fileName,
+    fileHash,
+    fileSize
+  }: {
+    fileData: Readable
+    fileName: string
     fileHash?: string
-  ): Promise<{ relativePath: string; fileSize: number; fileHash: string }> {
-    const relativePath = join(this.idGenerator.getId(), fileName)
+    fileSize?: number
+  }): Promise<{ relativePath: string; fileSize: number; fileHash: string }> {
+    const objectKey = this.newObjectKey(fileName)
 
-    let fileSize = 0
     const hash = createHash('md5')
-    const transform = new Transform({
-      transform(chunk, _, callback) {
-        hash.update(chunk)
-        this.push(chunk)
-        fileSize += chunk.length
-        callback()
-      }
-    })
-    await this.client.putObject(
-      this.config.s3.bucket,
-      relativePath,
-      fileData.pipe(transform)
-    )
+    let size: number = 0
+    let stream: Readable | Transform
+    if ([fileSize, fileHash].some(isNil)) {
+      stream = fileData.pipe(
+        new Transform({
+          transform(chunk, _, callback) {
+            hash.update(chunk)
+            size += chunk.length
+            this.push(chunk)
+            callback()
+          }
+        })
+      )
+    } else {
+      stream = fileData
+    }
 
+    await new Upload({
+      client: this.client,
+      params: {
+        Bucket: this.config.s3.bucket,
+        Key: objectKey,
+        Body: stream
+      }
+    }).done()
+
+    const relativePath = getRelativePath(this.config.s3.bucket, objectKey)
     const hashValue = hash.digest('hex')
-    if (fileHash && fileHash !== hashValue) {
-      await this.client.removeObject(this.config.s3.bucket, relativePath)
+    if ([fileSize, fileHash].some(isNil) || fileHash !== hashValue) {
+      await this.deleteFile(relativePath)
       throw new Error('hash值不正确')
     }
 
     return {
-      relativePath: join(this.config.s3.bucket, relativePath),
-      fileSize,
-      fileHash: hashValue
+      relativePath,
+      fileSize: fileSize ?? size,
+      fileHash: fileHash ?? hashValue
     }
   }
 
   // %% deleteFile %%
-  async deleteFile(relativePath: string): Promise<void> {
-    const { bucket, filePath } = getBucketAndFilePath(relativePath)
+  async deleteFile(relativePath: string) {
+    const { bucket, objectKey } = getBucketAndObjectKey(relativePath)
 
-    return this.client.removeObject(bucket, filePath)
+    return this.client.send(
+      new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: objectKey
+      })
+    )
   }
 
   // %% createMultipartUpload %%
   async createMultipartUpload(
-    fileName: string
+    fileName: string,
+    fileSize: number
   ): Promise<{ relativePath: string; uploadId: string }> {
-    const relativePath = join(this.idGenerator.getId(), fileName)
+    if (fileSize / this.config.upload.chunkSize > this.maxChunkCount) {
+      throw new Error('分片数量过多')
+    }
 
-    return this.client
-      .initiateNewMultipartUpload(this.config.s3.bucket, relativePath, {})
-      .then((uploadId) => ({
-        relativePath: join(this.config.s3.bucket, relativePath),
-        uploadId
-      }))
+    const objectKey = this.newObjectKey(fileName)
+
+    const res = await this.client.send(
+      new CreateMultipartUploadCommand({
+        Bucket: this.config.s3.bucket,
+        Key: objectKey
+      })
+    )
+
+    return {
+      relativePath: getRelativePath(this.config.s3.bucket, objectKey),
+      uploadId: res.UploadId!
+    }
   }
 
   // %% uploadFileChunk %%
@@ -79,50 +123,82 @@ export class S3Service {
     chunkData,
     relativePath,
     uploadId,
-    chunkIndex
+    chunkIndex,
+    chunkHash
   }: {
     chunkData: Buffer
     relativePath: string
     uploadId: string
     chunkIndex: number
-  }): Promise<{ hash: string; part: number }> {
-    const { bucket, filePath } = getBucketAndFilePath(relativePath)
+    chunkHash: string
+  }) {
+    const { bucket, objectKey } = getBucketAndObjectKey(relativePath)
 
-    return this.client
-      .uploadPart(
-        {
-          bucketName: bucket,
-          objectName: filePath,
-          uploadID: uploadId,
-          partNumber: chunkIndex + 1,
-          headers: {}
-        },
-        chunkData
-      )
-      .then((x) => ({ hash: x.etag, part: x.part }))
+    const res = await this.client.send(
+      new UploadPartCommand({
+        Bucket: bucket,
+        Key: objectKey,
+        UploadId: uploadId,
+        PartNumber: chunkIndex + 1,
+        Body: chunkData
+      })
+    )
+
+    assert(chunkHash === res.ETag, '分片数据有误')
   }
 
   // %% mergeFileChunks %%
   async mergeFileChunks(
     relativePath: string,
     uploadId: string,
-    chunks: { part: number; hash: string }[]
+    chunksHash: string[]
   ) {
-    const { bucket, filePath } = getBucketAndFilePath(relativePath)
+    const { bucket, objectKey } = getBucketAndObjectKey(relativePath)
 
-    await this.client.completeMultipartUpload(
-      bucket,
-      filePath,
-      uploadId,
-      chunks.map(({ part, hash }) => ({ etag: hash, part }))
+    await this.client.send(
+      new CompleteMultipartUploadCommand({
+        Bucket: bucket,
+        Key: objectKey,
+        UploadId: uploadId,
+        MultipartUpload: {
+          Parts: chunksHash.map((x, i) => ({
+            PartNumber: i + 1,
+            ETag: x
+          }))
+        }
+      })
     )
   }
+
+  // %% downloadFile %%
+  async downloadFile(relativePath: string) {
+    const { bucket, objectKey } = getBucketAndObjectKey(relativePath)
+
+    return (
+      await this.client.send(
+        new GetObjectCommand({
+          Bucket: bucket,
+          Key: objectKey
+        })
+      )
+    ).Body!
+  }
+
+  // %% newObjectKey %%
+  private newObjectKey(fileName: string) {
+    return join(this.idGenerator.generateId(), fileName)
+  }
+
+  private maxChunkCount = 10000
 }
 
 // % extract %
-const getBucketAndFilePath = (relativePath: string) => {
+const getBucketAndObjectKey = (relativePath: string) => {
   const [bucket, ...paths] = relativePath.split('/')
-  const filePath = paths.join('/')
+  const objectKey = paths.join('/')
 
-  return { bucket, filePath }
+  return { bucket, objectKey }
 }
+
+const getRelativePath = (bucket: string, objectKey: string) =>
+  join(bucket, objectKey)

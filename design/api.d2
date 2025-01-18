@@ -7,7 +7,7 @@ FileService: {
   uploadFileByStream(fileData stream, fileHash? string, fileName string, variants? Variant\[\], lifetime? number): FileInfo
   uploadFileByHash(fileHash string, fileName string, variants? Variant\[\], lifetime? number): FileInfo
   requestFileChunks(fileHash string, fileName string, fileSize number): ChunksInfo
-  uploadFileChunk(chunkData stream, chunkIndex number, chunkHash string, fileHash string)
+  uploadFileChunk(chunkData buffer, chunkIndex number, chunkHash string, fileHash string)
   mergeFileChunks(fileHash string, fileName string, variants? Variant\[\], lifetime? number): FileInfo
   -createFileVariant(fileHash string, variant Variant): FileInfo
   # delete
