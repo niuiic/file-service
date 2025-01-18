@@ -1,112 +1,108 @@
 ...@classes
 
-# % FileQueryController %
-FileQueryController -> FileQueryService: {
+# % FileModule.FileQueryController %
+FileModule.FileQueryController -> FileModule.FileQueryService: {
   class: combine
 }
-FileQueryController -> FileDownloadService: {
-  class: combine
-}
-
-# %% FileQueryService %%
-FileQueryService -> FilesDAO: {
-  class: combine
-}
-FilesDAO -> DBModule.DB: {
+FileModule.FileQueryController -> FileModule.FileDownloadService: {
   class: combine
 }
 
-# %% FileDownloadService %%
-FileDownloadService -> FilesDAO: {
+# %% FileModule.FileQueryService %%
+FileModule.FileQueryService -> FileModule.FilesDAO: {
   class: combine
 }
-FileDownloadService -> S3Module.S3Service: {
-  class: combine
-}
-
-# % FileDeleteController %
-FileDeleteController -> FileDeleteService: {
+FileModule.FilesDAO -> DBModule.Database: {
   class: combine
 }
 
-# %% FileDeleteService %%
-FileDeleteService -> FilesDAO: {
+# %% FileModule.FileDownloadService %%
+FileModule.FileDownloadService -> FileModule.FilesDAO: {
   class: combine
 }
-FileDeleteService -> S3Module.S3Service: {
-  class: combine
-}
-
-# % FileUploadController %
-FileUploadController -> FileStreamUploadService: {
-  class: combine
-}
-FileUploadController -> FileMultipartUploadService: {
-  class: combine
-}
-FileUploadController -> FileCreateVariantService: {
+FileModule.FileDownloadService -> S3Module.S3Service: {
   class: combine
 }
 
-# %% FileStreamUploadService %%
-FileStreamUploadService -> FilesDAO: {
-  class: combine
-}
-FileStreamUploadService -> IdModule.ID: {
-  class: combine
-}
-FileStreamUploadService -> S3Module.S3Service: {
+# % FileModule.FileDeleteController %
+FileModule.FileDeleteController -> FileModule.FileDeleteService: {
   class: combine
 }
 
-# %% FileMultipartUploadService %%
-FileMultipartUploadService -> FilesDAO: {
+# %% FileModule.FileDeleteService %%
+FileModule.FileDeleteService -> FileModule.FilesDAO: {
   class: combine
 }
-FileMultipartUploadService -> IdModule.ID: {
-  class: combine
-}
-FileMultipartUploadService -> S3Module.S3Service: {
-  class: combine
-}
-FileMultipartUploadService -> UploadDAO: {
-  class: combine
-}
-FileMultipartUploadService -> ChunksDAO: {
-  class: combine
-}
-UploadDAO -> CacheModule.CACHE: {
-  class: combine
-}
-ChunksDAO -> CacheModule.CACHE: {
+FileModule.FileDeleteService -> S3Module.S3Service: {
   class: combine
 }
 
-# %% FileCreateVariantService %%
-FileCreateVariantService -> FilesDAO: {
+# % FileModule.FileUploadController %
+FileModule.FileUploadController -> FileModule.FileStreamUploadService: {
   class: combine
 }
-FileCreateVariantService -> IdModule.ID: {
+FileModule.FileUploadController -> FileModule.FileMultipartUploadService: {
   class: combine
 }
-FileCreateVariantService -> S3Module.S3Service: {
+FileModule.FileUploadController -> FileModule.FileCreateVariantService: {
+  class: combine
+}
+
+# %% FileModule.FileStreamUploadService %%
+FileModule.FileStreamUploadService -> FileModule.FilesDAO: {
+  class: combine
+}
+FileModule.FileStreamUploadService -> IdModule.Id: {
+  class: combine
+}
+FileModule.FileStreamUploadService -> S3Module.S3Service: {
+  class: combine
+}
+
+# %% FileModule.FileMultipartUploadService %%
+FileModule.FileMultipartUploadService -> FileModule.FilesDAO: {
+  class: combine
+}
+FileModule.FileMultipartUploadService -> IdModule.Id: {
+  class: combine
+}
+FileModule.FileMultipartUploadService -> S3Module.S3Service: {
+  class: combine
+}
+FileModule.FileMultipartUploadService -> FileModule.UploadDAO: {
+  class: combine
+}
+FileModule.FileMultipartUploadService -> FileModule.ChunksDAO: {
+  class: combine
+}
+FileModule.UploadDAO -> CacheModule.Cache: {
+  class: combine
+}
+FileModule.ChunksDAO -> CacheModule.Cache: {
+  class: combine
+}
+
+# %% FileModule.FileCreateVariantService %%
+FileModule.FileCreateVariantService -> FileModule.FilesDAO: {
+  class: combine
+}
+FileModule.FileCreateVariantService -> IdModule.Id: {
+  class: combine
+}
+FileModule.FileCreateVariantService -> S3Module.S3Service: {
   class: combine
 }
 
 # % other %
-IdModule.ID -> ConfigModule.CONFIG: {
+IdModule.Id -> ConfigModule.Config: {
   class: combine
 }
-DBModule.DB -> ConfigModule.CONFIG: {
+DBModule.Database -> ConfigModule.Config: {
   class: combine
 }
-S3Module.S3Service -> ConfigModule.CONFIG: {
+S3Module.S3Service -> ConfigModule.Config: {
   class: combine
 }
-CacheModule.CACHE -> ConfigModule.CONFIG: {
+CacheModule.Cache -> ConfigModule.Config: {
   class: combine
-}
-
-IdModule: {
-  near: bottom-center
 }
