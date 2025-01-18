@@ -3,8 +3,6 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { FastifyAdapter } from '@nestjs/platform-fastify'
 import { AppModule } from './app.module'
 import { isMockMode } from './share/mode'
-import multipart from '@fastify/multipart'
-import type { AppConfig } from './share/config'
 import cors from '@fastify/cors'
 
 const bootstrap = async () => {
@@ -12,10 +10,6 @@ const bootstrap = async () => {
     AppModule.forRoot(isMockMode()),
     new FastifyAdapter()
   )
-
-  await app.register(multipart as any, {
-    limits: { fileSize: app.get<AppConfig>('CONFIG').upload.maxBlobSize }
-  })
 
   await app.register(cors as any, {
     origin: '*',
