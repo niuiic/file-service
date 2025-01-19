@@ -44,16 +44,15 @@ export class FileCreateVariantService {
     fileName,
     originHash,
     uploadTime,
-    variant,
-    expiryTime
+    variant
   }: {
     fileData: Transform
     fileName: string
     originHash: string
     uploadTime: Date
     variant: FileVariant
-    expiryTime?: Date
   }) {
+    // TODO: check if variant is supported
     const { relativePath, fileHash, fileSize } =
       await this.s3Service.uploadFileByStream({ fileData, fileName })
     await this.filesDAO.createFile({
@@ -62,7 +61,6 @@ export class FileCreateVariantService {
       size: fileSize,
       relativePath,
       uploadTime,
-      expiryTime,
       variant,
       origin_hash: originHash
     })
