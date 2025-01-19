@@ -30,13 +30,22 @@ export class FileCreateVariantService {
       .downloadFile(file.relativePath)
       .then((x) => toVariant(x, variant))
 
+    const expiryTime = files.reduce((res: Date | undefined, x) => {
+      if (!x.expiryTime) {
+        return
+      }
+
+      if (!res || x.expiryTime.getTime() > res.getTime()) {
+        return x.expiryTime
+      }
+    }, undefined)
     await this.uploadVariantByStream({
       fileData: variantData,
       fileName: file.name,
       originHash: file.hash,
       uploadTime: file.uploadTime,
       variant,
-      expiryTime: file.expiryTime as Date | undefined
+      expiryTime
     })
   }
 
