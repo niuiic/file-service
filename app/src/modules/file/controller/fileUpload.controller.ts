@@ -1,18 +1,22 @@
 import z from 'zod'
 import { Body, Controller, Inject, Post, Query, Req } from '@nestjs/common'
 import type { FastifyRequest } from 'fastify'
-import { toFileInfo, type FileInfo } from './fileInfo'
 import { ZodValidationPipe } from '@/share/validate'
-import { FileUploadService } from '../service/upload'
 import { fileHashString, fileNameString, nil } from '@/share/schema'
+import type { FileInfo } from '../service/fileInfo'
+import { toFileInfo } from '../service/fileInfo'
+import { FileStreamUploadService } from '../service/fileStreamUpload.service'
+import { FileMultipartUploadService } from '../service/fileMultipartUpload.service'
 
 // % controller %
 @Controller('file/upload')
 export class FileUploadController {
   // %% constructor %%
   constructor(
-    @Inject(FileUploadService)
-    private readonly fileUploadService: FileUploadService
+    @Inject(FileStreamUploadService)
+    private readonly fileUploadService: FileStreamUploadService,
+    @Inject(FileMultipartUploadService)
+    private readonly fileMultipartUploadService: FileMultipartUploadService
   ) {}
 
   // %% uploadFileByStream %%
@@ -20,11 +24,15 @@ export class FileUploadController {
   async uploadFileByStream(
     @Req() req: FastifyRequest,
     @Query('fileName', new ZodValidationPipe(fileNameString)) fileName: string,
-    @Query('fileHash', new ZodValidationPipe(fileHashString.or(nil)))
+    @Query('fileHash', new ZodValidationPipe(fileHashString.optional()))
     fileHash?: string
   ): Promise<FileInfo> {
     return this.fileUploadService
-      .uploadFileByStream(req.raw, fileName, fileHash)
+      .uploadFileByStream({
+        fileData: req.raw,
+        fileName,
+        fileHash
+      })
       .then(toFileInfo)
   }
 

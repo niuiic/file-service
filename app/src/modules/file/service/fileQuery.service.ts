@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { FilesDAO } from './files.dao'
-import { toFileInfo, type FileInfo } from '../controller/fileInfo'
 import assert from 'node:assert'
 import type { FileVariant } from './variant'
+import type { FileInfo } from './fileInfo'
+import { toFileInfo } from './fileInfo'
 
 // % FileQueryService %
 @Injectable()

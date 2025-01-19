@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common'
 import { ZodValidationPipe } from '@/share/validate'
 import { z } from 'zod'
-import { idString } from '@/share/schema'
-import type { FileInfo } from './fileInfo'
+import { fileHashString, idString } from '@/share/schema'
 import { FileQueryService } from '../service/fileQuery.service'
 import type { FileVariant } from '../service/variant'
 import { fileVariant } from '../service/variant'
+import type { FileInfo } from '../service/fileInfo'
 
 // % controller %
 @Controller('file/query')
@@ -35,7 +35,7 @@ export class FileQueryController {
   // %% isFileUploaded %%
   @Get('exist')
   async isFileUploaded(
-    @Query('hash', new ZodValidationPipe(z.string())) hash: string,
+    @Query('hash', new ZodValidationPipe(fileHashString)) hash: string,
     @Query('variant', new ZodValidationPipe(fileVariant.optional()))
     variant?: FileVariant
   ): Promise<boolean> {

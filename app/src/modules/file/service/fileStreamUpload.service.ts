@@ -3,9 +3,9 @@ import { FilesDAO } from './files.dao'
 import { S3Service } from '@/modules/s3/service/s3'
 import type { Readable } from 'stream'
 import type { FileVariant } from './variant'
-import { toFileInfo } from '../controller/fileInfo'
 import { FileCreateVariantService } from './fileCreateVariant.service'
 import assert from 'assert'
+import { toFileInfo } from './fileInfo'
 
 // % FileStreamUploadService %
 @Injectable()

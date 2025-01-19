@@ -5,7 +5,7 @@ import { S3Service } from '@/modules/s3/service/s3'
 import type { ChunksInfo } from './chunksInfo'
 import type { FileVariant } from './variant'
 import { FileCreateVariantService } from './fileCreateVariant.service'
-import { toFileInfo } from '../controller/fileInfo'
+import { toFileInfo } from './fileInfo'
 
 // % FileMultipartUploadService %
 @Injectable()

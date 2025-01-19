@@ -7,5 +7,3 @@ export const idString = z
 export const fileNameString = z.string().min(1).max(255)
 
 export const fileHashString = z.string().min(1).max(32)
-
-export const nil = z.undefined().or(z.null())
