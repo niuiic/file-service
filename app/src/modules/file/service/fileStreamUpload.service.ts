@@ -35,6 +35,8 @@ export class FileStreamUploadService {
     if (fileHash) {
       const files = await this.filesDAO.queryFilesByHash(fileHash)
       if (files.length > 0) {
+        this.createFileVariants(fileHash, variants).catch(() => {})
+
         return this.filesDAO
           .createFile({
             name: fileName,
@@ -58,15 +60,7 @@ export class FileStreamUploadService {
       fileHash
     })
 
-    if (variants) {
-      Promise.all(
-        new Set(variants)
-          .values()
-          .map((x) =>
-            this.fileCreateVariantService.createVariant(hash, x).catch(() => {})
-          )
-      ).catch(() => {})
-    }
+    this.createFileVariants(hash, variants).catch(() => {})
 
     return this.filesDAO
       .createFile({
@@ -78,6 +72,19 @@ export class FileStreamUploadService {
         expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
       })
       .then(toFileInfo)
+  }
+
+  // %% createFileVariants %%
+  private async createFileVariants(fileHash: string, variants?: FileVariant[]) {
+    if (!variants) {
+      return
+    }
+
+    return Promise.allSettled(
+      new Set(variants)
+        .values()
+        .map((x) => this.fileCreateVariantService.createVariant(fileHash, x))
+    )
   }
 
   // %% uploadFileByHash %%
@@ -95,17 +102,7 @@ export class FileStreamUploadService {
     const files = await this.filesDAO.queryFilesByHash(fileHash)
     assert(files.length > 0, '文件未上传')
 
-    if (variants) {
-      Promise.all(
-        new Set(variants)
-          .values()
-          .map((x) =>
-            this.fileCreateVariantService
-              .createVariant(fileHash, x)
-              .catch(() => {})
-          )
-      ).catch(() => {})
-    }
+    this.createFileVariants(fileHash, variants).catch(() => {})
 
     return this.filesDAO
       .createFile({
@@ -120,5 +117,6 @@ export class FileStreamUploadService {
   }
 }
 
+// % extract %
 const getExpiryTime = (lifetime: number) =>
   new Date(new Date().getTime() + lifetime * 1000)

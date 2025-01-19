@@ -64,7 +64,12 @@ export class MultipartUploadDAO {
 
   // %% deleteUpload %%
   async deleteUpload(fileHash: string) {
-    return this.cacheClient.del(getUploadKey(fileHash))
+    return this.cacheClient
+      .pipeline()
+      .del(getUploadKey(fileHash))
+      .del(getChunksKey(fileHash))
+      .exec()
+      .then(validateResults)
   }
 
   // %% isChunkUploaded %%

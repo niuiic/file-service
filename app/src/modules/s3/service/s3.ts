@@ -98,8 +98,14 @@ export class S3Service {
   async createMultipartUpload(
     fileName: string,
     fileSize: number
-  ): Promise<{ relativePath: string; uploadId: string }> {
-    if (fileSize / this.config.upload.chunkSize > this.maxChunkCount) {
+  ): Promise<{
+    relativePath: string
+    uploadId: string
+    chunkSize: number
+    chunkCount: number
+  }> {
+    const chunkCount = Math.ceil(fileSize / this.config.upload.chunkSize)
+    if (chunkCount > this.maxChunkCount) {
       throw new Error('分片数量过多')
     }
 
@@ -114,7 +120,9 @@ export class S3Service {
 
     return {
       relativePath: getRelativePath(this.config.s3.bucket, objectKey),
-      uploadId: res.UploadId!
+      uploadId: res.UploadId!,
+      chunkSize: this.config.upload.chunkSize,
+      chunkCount
     }
   }
 

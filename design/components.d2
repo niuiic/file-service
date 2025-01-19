@@ -18,12 +18,18 @@ FileModule.FilesDAO -> DBModule.DBClient: {
 FileModule.FilesDAO -> DBModule.DBSchema: {
   class: combine
 }
+FileModule.FilesDAO -> IdModule.IdService: {
+  class: combine
+}
 
 # %% FileModule.FileDownloadService %%
 FileModule.FileDownloadService -> FileModule.FilesDAO: {
   class: combine
 }
 FileModule.FileDownloadService -> S3Module.S3Service: {
+  class: combine
+}
+S3Module.S3Service -> IdModule.IdService: {
   class: combine
 }
 
@@ -55,18 +61,12 @@ FileModule.FileUploadController -> FileModule.FileCreateVariantService: {
 FileModule.FileStreamUploadService -> FileModule.FilesDAO: {
   class: combine
 }
-FileModule.FileStreamUploadService -> IdModule.IdService: {
-  class: combine
-}
 FileModule.FileStreamUploadService -> S3Module.S3Service: {
   class: combine
 }
 
 # %% FileModule.FileMultipartUploadService %%
 FileModule.FileMultipartUploadService -> FileModule.FilesDAO: {
-  class: combine
-}
-FileModule.FileMultipartUploadService -> IdModule.IdService: {
   class: combine
 }
 FileModule.FileMultipartUploadService -> S3Module.S3Service: {
@@ -81,9 +81,6 @@ FileModule.MultipartUploadDAO -> CacheModule.Cache: {
 
 # %% FileModule.FileCreateVariantService %%
 FileModule.FileCreateVariantService -> FileModule.FilesDAO: {
-  class: combine
-}
-FileModule.FileCreateVariantService -> IdModule.IdService: {
   class: combine
 }
 FileModule.FileCreateVariantService -> S3Module.S3Service: {
