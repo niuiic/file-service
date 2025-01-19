@@ -35,9 +35,9 @@ export class FileQueryController {
   // %% isFileUploaded %%
   @Get('exist')
   async isFileUploaded(
-    @Query('hash', new ZodValidationPipe(idString)) hash: string,
-    @Query('variant', new ZodValidationPipe(fileVariant))
-    variant: FileVariant
+    @Query('hash', new ZodValidationPipe(z.string())) hash: string,
+    @Query('variant', new ZodValidationPipe(fileVariant.optional()))
+    variant?: FileVariant
   ): Promise<boolean> {
     return this.fileQueryService.isFileUploaded(hash, variant)
   }
