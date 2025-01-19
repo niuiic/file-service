@@ -24,9 +24,11 @@ export class FileDeleteService {
     await this.s3Service.deleteFile(file.relativePath)
 
     const variants = await this.filesDAO.queryVariantsByOriginHash(file.hash)
-    variants.forEach(async (x) => {
-      await this.filesDAO.deleteFileById(x.id)
-      await this.s3Service.deleteFile(file.relativePath)
-    })
+    variants.forEach((x) =>
+      Promise.all([
+        this.filesDAO.deleteFileById(x.id),
+        this.s3Service.deleteFile(file.relativePath)
+      ]).catch(() => {})
+    )
   }
 }
