@@ -6,7 +6,7 @@ import { fileVariant } from '../service/variant'
 import { FileDownloadService } from '../service/fileDownload.service'
 
 // % controller %
-@Controller('file')
+@Controller('file/download')
 export class FileDownloadController {
   // %% constructor %%
   constructor(
@@ -15,7 +15,7 @@ export class FileDownloadController {
   ) {}
 
   // %% downloadFile %%
-  @Get('download')
+  @Get('/')
   async downloadFile(
     @Query('id', new ZodValidationPipe(idString)) id: string,
     @Query('variant', new ZodValidationPipe(fileVariant.optional()))
