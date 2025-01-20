@@ -96,6 +96,7 @@ export class FileUploadController {
     })
   }
 
+  // %% mergeFileChunks %%
   @Post('chunk/merge')
   async mergeFileChunks(
     @Body(new ZodValidationPipe(FileUploadController.mergeFileChunksDTO))
