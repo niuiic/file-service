@@ -5,7 +5,6 @@ import { S3Service } from '@/modules/s3/service/s3'
 import type { ChunksInfo } from './chunksInfo'
 import type { FileVariant } from './variant'
 import { FileCreateVariantService } from './fileCreateVariant.service'
-import { toFileInfo } from './fileInfo'
 
 // % FileMultipartUploadService %
 @Injectable()
@@ -101,16 +100,14 @@ export class FileMultipartUploadService {
     if (files.length > 0) {
       this.createFileVariants(fileHash, variants).catch(() => {})
 
-      return this.filesDAO
-        .createFile({
-          name: fileName,
-          hash: fileHash,
-          size: files[0].size,
-          relativePath: files[0].relativePath,
-          uploadTime: files[0].uploadTime,
-          expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
-        })
-        .then(toFileInfo)
+      return this.filesDAO.createFile({
+        name: fileName,
+        hash: fileHash,
+        size: files[0].size,
+        relativePath: files[0].relativePath,
+        uploadTime: files[0].uploadTime,
+        expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
+      })
     }
 
     const uploadInfo = await this.multipartUploadDAO.queryUploadInfo(fileHash)
@@ -133,16 +130,14 @@ export class FileMultipartUploadService {
 
     await this.multipartUploadDAO.deleteUpload(fileHash)
 
-    return this.filesDAO
-      .createFile({
-        name: fileName,
-        hash: fileHash,
-        size: uploadInfo.fileSize,
-        relativePath: uploadInfo.relativePath,
-        uploadTime: new Date(),
-        expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
-      })
-      .then(toFileInfo)
+    return this.filesDAO.createFile({
+      name: fileName,
+      hash: fileHash,
+      size: uploadInfo.fileSize,
+      relativePath: uploadInfo.relativePath,
+      uploadTime: new Date(),
+      expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
+    })
   }
 
   // %% createFileVariants %%

@@ -11,6 +11,7 @@ export class FileDownloadService {
     @Inject(S3Service) private readonly s3Service: S3Service
   ) {}
 
+  // TODO: range download
   async downloadFile(fileId: string, variant?: FileVariant) {
     const file = await this.filesDAO.queryFileById(fileId, variant)
     assert(file, '文件不存在')

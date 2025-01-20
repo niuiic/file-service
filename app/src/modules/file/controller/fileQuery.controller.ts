@@ -5,7 +5,7 @@ import { fileHashString, idString } from '@/share/schema'
 import { FileQueryService } from '../service/fileQuery.service'
 import type { FileVariant } from '../service/variant'
 import { fileVariant } from '../service/variant'
-import type { FileInfo } from '../service/fileInfo'
+import { toFileInfo, type FileInfo } from './fileInfo'
 
 // % controller %
 @Controller('file/query')
@@ -21,7 +21,7 @@ export class FileQueryController {
   async queryFileById(
     @Query('id', new ZodValidationPipe(idString)) id: string
   ): Promise<FileInfo | undefined> {
-    return this.fileQueryService.queryFileInfo(id)
+    return this.fileQueryService.queryFileInfo(id).then(toFileInfo)
   }
 
   // %% queryFilesById %%
@@ -29,7 +29,9 @@ export class FileQueryController {
   async queryFilesById(
     @Body(new ZodValidationPipe(z.array(idString))) ids: string[]
   ): Promise<FileInfo[]> {
-    return this.fileQueryService.queryFilesInfo(ids)
+    return this.fileQueryService
+      .queryFilesInfo(ids)
+      .then((x) => x.map(toFileInfo))
   }
 
   // %% isFileUploaded %%

@@ -5,7 +5,6 @@ import type { Readable } from 'stream'
 import type { FileVariant } from './variant'
 import { FileCreateVariantService } from './fileCreateVariant.service'
 import assert from 'assert'
-import { toFileInfo } from './fileInfo'
 
 // % FileStreamUploadService %
 @Injectable()
@@ -37,16 +36,14 @@ export class FileStreamUploadService {
       if (files.length > 0) {
         this.createFileVariants(fileHash, variants).catch(() => {})
 
-        return this.filesDAO
-          .createFile({
-            name: fileName,
-            hash: fileHash,
-            size: files[0].size,
-            relativePath: files[0].relativePath,
-            uploadTime: files[0].uploadTime,
-            expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
-          })
-          .then(toFileInfo)
+        return this.filesDAO.createFile({
+          name: fileName,
+          hash: fileHash,
+          size: files[0].size,
+          relativePath: files[0].relativePath,
+          uploadTime: files[0].uploadTime,
+          expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
+        })
       }
     }
 
@@ -62,16 +59,14 @@ export class FileStreamUploadService {
 
     this.createFileVariants(hash, variants).catch(() => {})
 
-    return this.filesDAO
-      .createFile({
-        name: fileName,
-        hash,
-        size: fileSize,
-        relativePath,
-        uploadTime: new Date(),
-        expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
-      })
-      .then(toFileInfo)
+    return this.filesDAO.createFile({
+      name: fileName,
+      hash,
+      size: fileSize,
+      relativePath,
+      uploadTime: new Date(),
+      expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
+    })
   }
 
   // %% createFileVariants %%
@@ -104,16 +99,14 @@ export class FileStreamUploadService {
 
     this.createFileVariants(fileHash, variants).catch(() => {})
 
-    return this.filesDAO
-      .createFile({
-        name: fileName,
-        hash: fileHash,
-        size: files[0].size,
-        relativePath: files[0].relativePath,
-        uploadTime: files[0].uploadTime,
-        expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
-      })
-      .then(toFileInfo)
+    return this.filesDAO.createFile({
+      name: fileName,
+      hash: fileHash,
+      size: files[0].size,
+      relativePath: files[0].relativePath,
+      uploadTime: files[0].uploadTime,
+      expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
+    })
   }
 }
 

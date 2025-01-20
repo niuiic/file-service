@@ -3,7 +3,6 @@ import { FilesDAO } from './files.dao'
 import assert from 'node:assert'
 import type { FileVariant } from './variant'
 import type { FileInfo } from './fileInfo'
-import { toFileInfo } from './fileInfo'
 
 // % FileQueryService %
 @Injectable()
@@ -15,15 +14,13 @@ export class FileQueryService {
   async queryFileInfo(fileId: string): Promise<FileInfo> {
     return this.filesDAO.queryFileById(fileId).then((x) => {
       assert(x, '文件不存在')
-      return toFileInfo(x)
+      return x
     })
   }
 
   // %% queryFilesInfo %%
   async queryFilesInfo(fileIds: string[]) {
-    return this.filesDAO
-      .queryFilesById(fileIds)
-      .then((files) => files.map(toFileInfo))
+    return this.filesDAO.queryFilesById(fileIds)
   }
 
   // %% isFileUploaded %%

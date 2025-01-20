@@ -2,11 +2,13 @@ import z from 'zod'
 import { Body, Controller, Inject, Post, Query, Req } from '@nestjs/common'
 import type { FastifyRequest } from 'fastify'
 import { ZodValidationPipe } from '@/share/validate'
-import { fileHashString, fileNameString, nil } from '@/share/schema'
-import type { FileInfo } from '../service/fileInfo'
-import { toFileInfo } from '../service/fileInfo'
+import { fileHashString, fileNameString } from '@/share/schema'
 import { FileStreamUploadService } from '../service/fileStreamUpload.service'
 import { FileMultipartUploadService } from '../service/fileMultipartUpload.service'
+import type { FileInfo } from './fileInfo'
+import { toFileInfo } from './fileInfo'
+import type { FileVariant } from '../service/variant'
+import { fileVariant } from '../service/variant'
 
 // % controller %
 @Controller('file/upload')
@@ -52,5 +54,64 @@ export class FileUploadController {
   private static fileInfoDTO = z.object({
     fileHash: z.string(),
     fileName: z.string()
+  })
+
+  // %% requestFileChunks %%
+  @Post('chunk/request')
+  async requestFileChunks(
+    @Body(new ZodValidationPipe(FileUploadController.requestFileChunksDTO))
+    data: z.infer<typeof FileUploadController.requestFileChunksDTO>
+  ) {
+    return this.fileMultipartUploadService.requestFileChunks(
+      data.fileHash,
+      data.fileName,
+      data.fileSize
+    )
+  }
+  private static requestFileChunksDTO = z.object({
+    fileHash: z.string(),
+    fileName: z.string(),
+    fileSize: z.number()
+  })
+
+  // %% uploadFileChunks %%
+  @Post('chunk/upload')
+  async uploadFileChunks(
+    @Req() req: FastifyRequest,
+    @Query('chunkIndex', new ZodValidationPipe(z.number())) chunkIndex: number,
+    @Query('chunkHash', new ZodValidationPipe(fileHashString))
+    chunkHash: string,
+    @Query('fileHash', new ZodValidationPipe(fileHashString)) fileHash: string
+  ) {
+    const chunks: Buffer[] = []
+    for await (const chunk of req.raw) {
+      chunks.push(chunk)
+    }
+
+    return this.fileMultipartUploadService.uploadFileChunk({
+      chunkData: Buffer.concat(chunks),
+      chunkIndex,
+      chunkHash,
+      fileHash
+    })
+  }
+
+  @Post('chunk/merge')
+  async mergeFileChunks(
+    @Body(new ZodValidationPipe(FileUploadController.mergeFileChunksDTO))
+    data: z.infer<typeof FileUploadController.mergeFileChunksDTO>
+  ) {
+    return this.fileMultipartUploadService.mergeFileChunks({
+      fileHash: data.fileHash,
+      fileName: data.fileName,
+      variants: data.variants as FileVariant[] | undefined,
+      lifetime: data.lifetime
+    })
+  }
+  private static mergeFileChunksDTO = z.object({
+    fileHash: z.string(),
+    fileName: z.string(),
+    variants: z.array(fileVariant).optional(),
+    lifetime: z.number().optional()
   })
 }
