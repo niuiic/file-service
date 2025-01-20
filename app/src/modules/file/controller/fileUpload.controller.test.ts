@@ -5,14 +5,17 @@ import type { RawServerDefault } from 'fastify'
 import { initTestApp } from '@/share/test'
 import type { AppConfig } from '@/share/config'
 import { createHash } from 'crypto'
+import type { Writable } from 'stream'
+import { Readable } from 'stream'
 
-describe('file chunk controller', () => {
+describe('file upload controller', () => {
   let app: NestFastifyApplication<RawServerDefault>
 
   beforeAll(async () => (app = await initTestApp()))
 
   afterAll(() => app.close())
 
+  // %% multipartUpload %%
   test('multipart upload', async () => {
     const fileName = new Date().toString()
     const fileData = Buffer.from((0).toFixed(1).repeat(10 * 1024 ** 2))
@@ -59,4 +62,40 @@ describe('file chunk controller', () => {
       .send({ fileHash })
       .expect(201)
   })
+
+  // %% uploadFileByStream %%
+  test('uploadFileByStream', () => {
+    const fileData = new Date().toString().repeat(100)
+    const fileHash = createHash('md5').update(fileData).digest('hex')
+
+    const { promise, resolve, reject } = Promise.withResolvers()
+    const readable = new Readable({
+      read() {
+        this.push(fileData)
+        this.push(null)
+      }
+    })
+
+    const req = request(app.getHttpServer())
+      .post('/file/upload/stream')
+      .set('Content-Type', 'application/octet-stream')
+      .query({
+        fileHash,
+        fileName: 'test.txt'
+      })
+    req.on('error', reject)
+    req.on('end', resolve)
+
+    readable.pipe(req as unknown as Writable)
+
+    return promise
+  })
+
+  // %% uploadFileByHash %%
+  test('uploadFileByHash', () =>
+    request(app.getHttpServer())
+      .post('/file/upload/hash')
+      .field('fileName', new Date().toString())
+      .field('fileHash', new Date().toString())
+      .expect(400))
 })

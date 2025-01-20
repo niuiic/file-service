@@ -1,6 +1,6 @@
 import { beforeAll, describe, test } from 'vitest'
 import { Test } from '@nestjs/testing'
-import { FileQueryController } from './query'
+import { FileQueryController } from './fileQuery.controller'
 import { AppModule } from '@/app.module'
 
 describe('file query controller', () => {
