@@ -5,3 +5,4 @@ coverage/
 .nvim/
 drizzle/
 .vscode/
+*.sql
