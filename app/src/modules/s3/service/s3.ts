@@ -14,7 +14,6 @@ import { createHash } from 'crypto'
 import { Transform, Readable } from 'stream'
 import { Providers } from '@/modules/symbol'
 import { IdService } from '@/modules/id/id.service'
-import { isNil } from '@/share/isNil'
 import assert from 'assert'
 
 // % service %
@@ -31,20 +30,18 @@ export class S3Service {
   async uploadFileByStream({
     fileData,
     fileName,
-    fileHash,
-    fileSize
+    fileHash
   }: {
     fileData: Readable
     fileName: string
     fileHash?: string
-    fileSize?: number
   }): Promise<{ relativePath: string; fileSize: number; fileHash: string }> {
     const objectKey = this.newObjectKey(fileName)
 
     const hash = createHash('md5')
     let size: number = 0
     let stream: Readable | Transform
-    if ([fileSize, fileHash].some(isNil)) {
+    if (!fileHash) {
       stream = fileData.pipe(
         new Transform({
           transform(chunk, _, callback) {
@@ -70,14 +67,14 @@ export class S3Service {
 
     const relativePath = getRelativePath(this.config.s3.bucket, objectKey)
     const hashValue = hash.digest('hex')
-    if ([fileSize, fileHash].some(isNil) || fileHash !== hashValue) {
+    if (fileHash && fileHash !== hashValue) {
       await this.deleteFile(relativePath)
       throw new Error('hash值不正确')
     }
 
     return {
       relativePath,
-      fileSize: fileSize ?? size,
+      fileSize: size,
       fileHash: fileHash ?? hashValue
     }
   }
