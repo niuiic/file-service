@@ -57,6 +57,13 @@ export class FileStreamUploadService {
       fileHash
     })
 
+    if (!fileHash) {
+      const files = await this.filesDAO.queryFilesByHash(hash)
+      if (files.length > 1) {
+        await this.s3Service.deleteFile(relativePath)
+      }
+    }
+
     this.createFileVariants(hash, variants).catch(() => {})
 
     return this.filesDAO.createFile({

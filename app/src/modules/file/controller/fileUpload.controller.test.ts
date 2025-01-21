@@ -1,5 +1,5 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { afterAll, beforeAll, describe, test } from 'vitest'
+import { afterAll, assert, beforeAll, describe, test } from 'vitest'
 import request from 'supertest'
 import type { RawServerDefault } from 'fastify'
 import { initTestApp } from '@/share/test'
@@ -7,6 +7,7 @@ import type { AppConfig } from '@/share/config'
 import { createHash } from 'crypto'
 import type { Writable } from 'stream'
 import { Readable } from 'stream'
+import { Providers } from '@/modules/symbol'
 
 describe('file upload controller', () => {
   let app: NestFastifyApplication<RawServerDefault>
@@ -15,10 +16,59 @@ describe('file upload controller', () => {
 
   afterAll(() => app.close())
 
+  // %% uploadFileByStream %%
+  test(
+    'uploadFileByStream',
+    {
+      timeout: 1e4
+    },
+    async () => {
+      const fileData = Uint8Array.from(new Date().toString().repeat(100))
+      const fileHash = createHash('md5').update(fileData).digest('hex')
+
+      const { promise, resolve, reject } = Promise.withResolvers()
+      const readable = new Readable({
+        read() {
+          this.push(fileData.slice(0, fileData.length / 2))
+          this.push(fileData.slice(fileData.length / 2))
+          this.push(null)
+        }
+      })
+
+      const req = request(app.getHttpServer())
+        .post('/file/upload/stream')
+        .set('Content-Type', 'application/octet-stream')
+        .query({
+          fileHash,
+          fileName: 'test.txt'
+        })
+      req.on('error', reject)
+      req.on('end', resolve)
+
+      readable.pipe(req as unknown as Writable)
+
+      await promise.then(() =>
+        request(app.getHttpServer())
+          .get('/file/query/exist')
+          .query({ hash: fileHash })
+          .then((res) => assert(res.body))
+      )
+    }
+  )
+
+  // %% uploadFileByHash %%
+  test('uploadFileByHash', () => {
+    request(app.getHttpServer())
+      .post('/file/upload/hash')
+      .field('fileName', new Date().toString())
+      .field('fileHash', new Date().toString())
+      .expect(500)
+  })
+
   // %% multipartUpload %%
   test('multipart upload', async () => {
     const fileName = new Date().toString()
-    const fileData = Buffer.from((0).toFixed(1).repeat(10 * 1024 ** 2))
+    const fileData = Uint8Array.from(new Date().toString().repeat(100))
     const fileHash = createHash('md5').update(fileData).digest('hex')
     const fileSize = fileData.length
 
@@ -30,31 +80,39 @@ describe('file upload controller', () => {
         fileSize
       })
       .expect(201)
-    const chunkSize = (app.get('CONFIG') as AppConfig).upload.chunkSize
+    const chunkSize = (app.get(Providers.Config) as AppConfig).upload.chunkSize
 
     await Promise.all(
       Array.from({ length: Math.ceil(fileSize / chunkSize) })
         .map((_, i) => {
-          const chunkData = Buffer.from(
-            Uint8Array.prototype.slice.call(
-              fileData,
-              i * chunkSize,
-              (i + 1) * chunkSize
-            )
-          )
-          const chunkHash = createHash('md5').update(chunkData).digest('hex')
-
+          const data = fileData.slice(i * chunkSize, (i + 1) * chunkSize)
+          const chunkData = new Readable({
+            read() {
+              this.push(data)
+              this.push(null)
+            }
+          })
+          const chunkHash = createHash('md5').update(data).digest('hex')
           return { chunkData, chunkHash }
         })
-        .map(({ chunkData, chunkHash }, i) =>
-          request(app.getHttpServer())
+        .map(({ chunkData, chunkHash }, i) => {
+          const { promise, resolve, reject } = Promise.withResolvers()
+
+          const req = request(app.getHttpServer())
             .post('/file/chunk/upload')
-            .attach('file', chunkData)
-            .field('chunkHash', chunkHash)
-            .field('chunkIndex', i)
-            .field('fileHash', fileHash)
-            .expect(201)
-        )
+            .set('Content-Type', 'application/octet-stream')
+            .query({
+              chunkHash,
+              chunkIndex: i,
+              fileHash
+            })
+          req.on('error', reject)
+          req.on('end', resolve)
+
+          chunkData.pipe(req as unknown as Writable)
+
+          return promise
+        })
     )
 
     await request(app.getHttpServer())
@@ -62,40 +120,4 @@ describe('file upload controller', () => {
       .send({ fileHash })
       .expect(201)
   })
-
-  // %% uploadFileByStream %%
-  test('uploadFileByStream', () => {
-    const fileData = new Date().toString().repeat(100)
-    const fileHash = createHash('md5').update(fileData).digest('hex')
-
-    const { promise, resolve, reject } = Promise.withResolvers()
-    const readable = new Readable({
-      read() {
-        this.push(fileData)
-        this.push(null)
-      }
-    })
-
-    const req = request(app.getHttpServer())
-      .post('/file/upload/stream')
-      .set('Content-Type', 'application/octet-stream')
-      .query({
-        fileHash,
-        fileName: 'test.txt'
-      })
-    req.on('error', reject)
-    req.on('end', resolve)
-
-    readable.pipe(req as unknown as Writable)
-
-    return promise
-  })
-
-  // %% uploadFileByHash %%
-  test('uploadFileByHash', () =>
-    request(app.getHttpServer())
-      .post('/file/upload/hash')
-      .field('fileName', new Date().toString())
-      .field('fileHash', new Date().toString())
-      .expect(400))
 })

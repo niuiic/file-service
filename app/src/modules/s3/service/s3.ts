@@ -10,7 +10,6 @@ import {
 import type { AppConfig } from '@/share/config'
 import { join } from 'path'
 import { Upload } from '@aws-sdk/lib-storage'
-import { createHash } from 'crypto'
 import { Transform, Readable } from 'stream'
 import { Providers } from '@/modules/symbol'
 import { IdService } from '@/modules/id/id.service'
@@ -38,25 +37,18 @@ export class S3Service {
   }): Promise<{ relativePath: string; fileSize: number; fileHash: string }> {
     const objectKey = this.newObjectKey(fileName)
 
-    const hash = createHash('md5')
     let size: number = 0
-    let stream: Readable | Transform
-    if (!fileHash) {
-      stream = fileData.pipe(
-        new Transform({
-          transform(chunk, _, callback) {
-            hash.update(chunk)
-            size += chunk.length
-            this.push(chunk)
-            callback()
-          }
-        })
-      )
-    } else {
-      stream = fileData
-    }
+    const stream = fileData.pipe(
+      new Transform({
+        transform(chunk, _, callback) {
+          size += chunk.length
+          this.push(chunk)
+          callback()
+        }
+      })
+    )
 
-    await new Upload({
+    const { ETag } = await new Upload({
       client: this.client,
       params: {
         Bucket: this.config.s3.bucket,
@@ -64,9 +56,10 @@ export class S3Service {
         Body: stream
       }
     }).done()
+    // HACK: ETag可能为undefined
+    const hashValue = ETag?.slice(1, -1)
 
     const relativePath = getRelativePath(this.config.s3.bucket, objectKey)
-    const hashValue = hash.digest('hex')
     if (fileHash && fileHash !== hashValue) {
       await this.deleteFile(relativePath)
       throw new Error('hash值不正确')
@@ -75,7 +68,7 @@ export class S3Service {
     return {
       relativePath,
       fileSize: size,
-      fileHash: fileHash ?? hashValue
+      fileHash: fileHash ?? (hashValue as string)
     }
   }
 

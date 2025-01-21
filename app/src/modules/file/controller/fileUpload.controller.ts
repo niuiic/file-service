@@ -11,7 +11,7 @@ import type { FileVariant } from '../service/variant'
 import { fileVariant } from '../service/variant'
 
 // % controller %
-@Controller('file/upload')
+@Controller('file')
 export class FileUploadController {
   // %% constructor %%
   constructor(
@@ -22,7 +22,7 @@ export class FileUploadController {
   ) {}
 
   // %% uploadFileByStream %%
-  @Post('stream')
+  @Post('upload/stream')
   async uploadFileByStream(
     @Req() req: FastifyRequest,
     @Query('fileName', new ZodValidationPipe(fileNameString)) fileName: string,
@@ -39,7 +39,7 @@ export class FileUploadController {
   }
 
   // %% uploadFileByHash %%
-  @Post('hash')
+  @Post('upload/hash')
   async uploadFileByHash(
     @Body(new ZodValidationPipe(FileUploadController.fileInfoDTO))
     fileInfo: z.infer<typeof FileUploadController.fileInfoDTO>
