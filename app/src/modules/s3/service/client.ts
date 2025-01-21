@@ -4,6 +4,7 @@ import {
   GetBucketPolicyStatusCommand,
   HeadBucketCommand,
   PutBucketAclCommand,
+  PutBucketPolicyCommand,
   S3Client
 } from '@aws-sdk/client-s3'
 import assert from 'assert'
@@ -42,10 +43,30 @@ const validateBucketIsPublic = async (client: S3Client, bucket: string) =>
     .then((x) => assert(x.PolicyStatus?.IsPublic))
 
 const makeBucketPublic = async (client: S3Client, bucket: string) =>
-  client.send(
-    new PutBucketAclCommand({
-      Bucket: bucket,
-      ACL: 'public-read'
-    })
-  )
+  client
+    .send(
+      new PutBucketAclCommand({
+        Bucket: bucket,
+        ACL: 'public-read'
+      })
+    )
+    .catch(() => makeBucketPublicFallback(client, bucket))
 
+const makeBucketPublicFallback = (client: S3Client, bucket: string) => {
+  const policy = {
+    Version: '2012-10-17',
+    Statement: [
+      {
+        Effect: 'Allow',
+        Principal: '*',
+        Action: ['s3:GetObject'],
+        Resource: [`arn:aws:s3:::${bucket}/*`]
+      }
+    ]
+  }
+  const command = new PutBucketPolicyCommand({
+    Bucket: bucket,
+    Policy: JSON.stringify(policy)
+  })
+  return client.send(command)
+}
