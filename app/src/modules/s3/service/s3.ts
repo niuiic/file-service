@@ -57,7 +57,7 @@ export class S3Service {
       }
     }).done()
     // HACK: ETag可能为undefined
-    const hashValue = ETag?.slice(1, -1)
+    const hashValue = ETag!.slice(1, -1)
 
     const relativePath = getRelativePath(this.config.s3.bucket, objectKey)
     if (fileHash && fileHash !== hashValue) {
@@ -141,7 +141,7 @@ export class S3Service {
         Body: chunkData
       })
     )
-    const hash = ETag?.slice(1, -1)
+    const hash = ETag!.slice(1, -1)
 
     assert(chunkHash === hash, '分片数据有误')
   }

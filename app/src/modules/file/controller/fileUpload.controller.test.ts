@@ -2,7 +2,7 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { afterAll, assert, beforeAll, describe, test } from 'vitest'
 import request from 'supertest'
 import type { RawServerDefault } from 'fastify'
-import { initTestApp } from '@/share/test'
+import { initTestApp, delay } from '@/share/test'
 import type { AppConfig } from '@/share/config'
 import { createHash } from 'crypto'
 import type { Writable } from 'stream'
@@ -20,7 +20,7 @@ describe('file upload controller', () => {
   test(
     'uploadFileByStream',
     {
-      timeout: 1e4
+      timeout: 2e4
     },
     async () => {
       const fileData = Uint8Array.from(new Date().toString().repeat(100))
@@ -40,19 +40,22 @@ describe('file upload controller', () => {
         .set('Content-Type', 'application/octet-stream')
         .query({
           fileHash,
-          fileName: 'test.txt'
+          fileName: 'test.png',
+          variants: ['PNG_COMPRESSED']
         })
       req.on('error', reject)
       req.on('end', resolve)
 
       readable.pipe(req as unknown as Writable)
 
-      await promise.then(() =>
-        request(app.getHttpServer())
-          .get('/file/query/exist')
-          .query({ hash: fileHash })
-          .then((res) => assert(res.body))
-      )
+      await promise
+        .then(() => delay(2e3))
+        .then(() =>
+          request(app.getHttpServer())
+            .get('/file/query/exist')
+            .query({ hash: fileHash, variant: 'PNG_COMPRESSED' })
+            .then((res) => assert(res.body))
+        )
     }
   )
 

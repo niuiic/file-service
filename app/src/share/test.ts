@@ -26,3 +26,9 @@ export const initTestApp = async () => {
 
   return app
 }
+
+export const delay = (time: number) => {
+  const { promise, resolve } = Promise.withResolvers()
+  setTimeout(() => resolve(undefined), time)
+  return promise
+}

@@ -28,6 +28,7 @@ export class FileUploadController {
     @Query('fileName', new ZodValidationPipe(fileNameString)) fileName: string,
     @Query('fileHash', new ZodValidationPipe(fileHashString.optional()))
     fileHash?: string,
+    // FIXME: variants may not be array
     @Query('variants', new ZodValidationPipe(z.array(fileVariant).optional()))
     variants?: FileVariant[],
     @Query('lifetime', new ZodValidationPipe(numberString.optional()))
