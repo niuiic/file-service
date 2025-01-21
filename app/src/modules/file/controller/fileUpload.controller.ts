@@ -27,13 +27,19 @@ export class FileUploadController {
     @Req() req: FastifyRequest,
     @Query('fileName', new ZodValidationPipe(fileNameString)) fileName: string,
     @Query('fileHash', new ZodValidationPipe(fileHashString.optional()))
-    fileHash?: string
+    fileHash?: string,
+    @Query('variants', new ZodValidationPipe(z.array(fileVariant).optional()))
+    variants?: FileVariant[],
+    @Query('lifetime', new ZodValidationPipe(numberString.optional()))
+    lifetime?: string
   ): Promise<FileInfo> {
     return this.fileUploadService
       .uploadFileByStream({
         fileData: req.raw,
         fileName,
-        fileHash
+        fileHash,
+        variants,
+        lifetime: lifetime ? parseInt(lifetime, 10) : undefined
       })
       .then(toFileInfo)
   }
@@ -41,19 +47,23 @@ export class FileUploadController {
   // %% uploadFileByHash %%
   @Post('upload/hash')
   async uploadFileByHash(
-    @Body(new ZodValidationPipe(FileUploadController.fileInfoDTO))
-    fileInfo: z.infer<typeof FileUploadController.fileInfoDTO>
+    @Body(new ZodValidationPipe(FileUploadController.uploadFileByHashDTO))
+    data: z.infer<typeof FileUploadController.uploadFileByHashDTO>
   ) {
     return this.fileUploadService
       .uploadFileByHash({
-        fileHash: fileInfo.fileHash,
-        fileName: fileInfo.fileName
+        fileHash: data.fileHash,
+        fileName: data.fileName,
+        variants: data.variants as FileVariant[] | undefined,
+        lifetime: data.lifetime
       })
       .then(toFileInfo)
   }
-  private static fileInfoDTO = z.object({
+  private static uploadFileByHashDTO = z.object({
     fileHash: z.string(),
-    fileName: z.string()
+    fileName: z.string(),
+    variants: z.array(fileVariant).optional(),
+    lifetime: z.number().optional()
   })
 
   // %% requestFileChunks %%
