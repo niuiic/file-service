@@ -117,7 +117,7 @@ describe('file upload controller', () => {
 
     await request(app.getHttpServer())
       .post('/file/chunk/merge')
-      .send({ fileHash })
+      .send({ fileHash, fileName })
       .expect(201)
   })
 })

@@ -132,7 +132,7 @@ export class S3Service {
   }) {
     const { bucket, objectKey } = getBucketAndObjectKey(relativePath)
 
-    const res = await this.client.send(
+    const { ETag } = await this.client.send(
       new UploadPartCommand({
         Bucket: bucket,
         Key: objectKey,
@@ -141,8 +141,9 @@ export class S3Service {
         Body: chunkData
       })
     )
+    const hash = ETag?.slice(1, -1)
 
-    assert(chunkHash === res.ETag, '分片数据有误')
+    assert(chunkHash === hash, '分片数据有误')
   }
 
   // %% mergeFileChunks %%

@@ -2,7 +2,7 @@ import z from 'zod'
 import { Body, Controller, Inject, Post, Query, Req } from '@nestjs/common'
 import type { FastifyRequest } from 'fastify'
 import { ZodValidationPipe } from '@/share/validate'
-import { fileHashString, fileNameString } from '@/share/schema'
+import { fileHashString, fileNameString, numberString } from '@/share/schema'
 import { FileStreamUploadService } from '../service/fileStreamUpload.service'
 import { FileMultipartUploadService } from '../service/fileMultipartUpload.service'
 import type { FileInfo } from './fileInfo'
@@ -78,7 +78,8 @@ export class FileUploadController {
   @Post('chunk/upload')
   async uploadFileChunks(
     @Req() req: FastifyRequest,
-    @Query('chunkIndex', new ZodValidationPipe(z.number())) chunkIndex: number,
+    @Query('chunkIndex', new ZodValidationPipe(numberString))
+    chunkIndex: string,
     @Query('chunkHash', new ZodValidationPipe(fileHashString))
     chunkHash: string,
     @Query('fileHash', new ZodValidationPipe(fileHashString)) fileHash: string
@@ -90,7 +91,7 @@ export class FileUploadController {
 
     return this.fileMultipartUploadService.uploadFileChunk({
       chunkData: Buffer.concat(chunks),
-      chunkIndex,
+      chunkIndex: parseInt(chunkIndex, 10),
       chunkHash,
       fileHash
     })
