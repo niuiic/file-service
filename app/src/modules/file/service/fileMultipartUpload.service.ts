@@ -5,6 +5,9 @@ import { S3Service } from '@/modules/s3/service/s3'
 import type { ChunksInfo } from './chunksInfo'
 import type { FileVariant } from './variant'
 import { FileCreateVariantService } from './fileCreateVariant.service'
+import { Providers } from '@/modules/symbol'
+import type { AppConfig } from '@/share/config'
+import { validateFileType } from './validateFileType'
 
 // % FileMultipartUploadService %
 @Injectable()
@@ -16,7 +19,8 @@ export class FileMultipartUploadService {
     private readonly multipartUploadDAO: MultipartUploadDAO,
     @Inject(S3Service) private readonly s3Service: S3Service,
     @Inject(FileCreateVariantService)
-    private readonly fileCreateVariantService: FileCreateVariantService
+    private readonly fileCreateVariantService: FileCreateVariantService,
+    @Inject(Providers.Config) private readonly config: AppConfig
   ) {}
 
   // %% requestFileChunks %%
@@ -25,6 +29,8 @@ export class FileMultipartUploadService {
     fileName: string,
     fileSize: number
   ): Promise<ChunksInfo> {
+    validateFileType(fileName, this.config.upload.acceptedFileTypes)
+
     const uploadInfo = await this.multipartUploadDAO.queryUploadInfo(fileHash)
     if (!uploadInfo) {
       const { relativePath, uploadId, chunkSize, chunkCount } =

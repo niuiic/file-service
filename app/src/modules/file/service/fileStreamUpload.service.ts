@@ -5,6 +5,9 @@ import type { Readable } from 'stream'
 import type { FileVariant } from './variant'
 import { FileCreateVariantService } from './fileCreateVariant.service'
 import assert from 'assert'
+import { validateFileType } from './validateFileType'
+import { Providers } from '@/modules/symbol'
+import type { AppConfig } from '@/share/config'
 
 // % FileStreamUploadService %
 @Injectable()
@@ -14,7 +17,8 @@ export class FileStreamUploadService {
     @Inject(FilesDAO) private readonly filesDAO: FilesDAO,
     @Inject(S3Service) private readonly s3Service: S3Service,
     @Inject(FileCreateVariantService)
-    private readonly fileCreateVariantService: FileCreateVariantService
+    private readonly fileCreateVariantService: FileCreateVariantService,
+    @Inject(Providers.Config) private readonly config: AppConfig
   ) {}
 
   // %% uploadFileByStream %%
@@ -31,6 +35,8 @@ export class FileStreamUploadService {
     variants?: FileVariant[]
     lifetime?: number
   }) {
+    validateFileType(fileName, this.config.upload.acceptedFileTypes)
+
     if (fileHash) {
       const files = await this.filesDAO.queryFilesByHash(fileHash)
       if (files.length > 0) {
