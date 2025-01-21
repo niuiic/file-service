@@ -10,11 +10,11 @@ import { configPath, configPathMock } from './share/config'
 
 @Module({})
 export class AppModule {
-  static forRoot(isMockMode: boolean): DynamicModule {
+  static forRoot(inMockMode: boolean): DynamicModule {
     return {
       module: AppModule,
       imports: [
-        ConfigModule.forRoot(isMockMode ? configPathMock : configPath),
+        ConfigModule.forRoot(inMockMode ? configPathMock : configPath),
         DBModule,
         FileModule,
         IdModule,

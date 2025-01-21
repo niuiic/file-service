@@ -21,9 +21,8 @@ const bootstrap = async () => {
   app
     .getHttpAdapter()
     .getInstance()
-    .addContentTypeParser(
-      'application/octet-stream',
-      (_request, _payload, done) => done(null, _payload)
+    .addContentTypeParser('application/octet-stream', (_, payload, done) =>
+      done(null, payload)
     )
 
   await app.listen({ host: '0.0.0.0', port: 3000 })
