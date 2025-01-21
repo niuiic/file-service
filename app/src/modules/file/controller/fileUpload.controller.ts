@@ -1,4 +1,4 @@
-import z, { array } from 'zod'
+import z from 'zod'
 import { Body, Controller, Inject, Post, Query, Req } from '@nestjs/common'
 import type { FastifyRequest } from 'fastify'
 import { ZodValidationPipe } from '@/share/validate'

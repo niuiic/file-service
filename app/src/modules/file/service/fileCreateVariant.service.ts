@@ -5,6 +5,7 @@ import { FileVariant } from './variant'
 import type { Readable } from 'node:stream'
 import type { Transform } from 'node:stream'
 import { CreateJpegCompressed, CreatePngCompressed } from './createVariant'
+import assert from 'node:assert'
 
 // % FileCreateVariantService %
 @Injectable()
@@ -25,9 +26,7 @@ export class FileCreateVariantService {
     }
 
     const files = await this.filesDAO.queryFilesByHash(fileHash)
-    if (files.length === 0) {
-      throw new Error('文件不存在')
-    }
+    assert(files.length > 0, '文件不存在')
 
     const file = files[0]
     const variantData = await this.s3Service
