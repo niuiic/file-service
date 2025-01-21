@@ -1,4 +1,4 @@
-import z from 'zod'
+import z, { array } from 'zod'
 import { Body, Controller, Inject, Post, Query, Req } from '@nestjs/common'
 import type { FastifyRequest } from 'fastify'
 import { ZodValidationPipe } from '@/share/validate'
@@ -28,9 +28,11 @@ export class FileUploadController {
     @Query('fileName', new ZodValidationPipe(fileNameString)) fileName: string,
     @Query('fileHash', new ZodValidationPipe(fileHashString.optional()))
     fileHash?: string,
-    // FIXME: variants may not be array
-    @Query('variants', new ZodValidationPipe(z.array(fileVariant).optional()))
-    variants?: FileVariant[],
+    @Query(
+      'variants',
+      new ZodValidationPipe(z.array(fileVariant).or(fileVariant).optional())
+    )
+    variants?: FileVariant[] | FileVariant,
     @Query('lifetime', new ZodValidationPipe(numberString.optional()))
     lifetime?: string
   ): Promise<FileInfo> {
@@ -39,7 +41,11 @@ export class FileUploadController {
         fileData: req.raw,
         fileName,
         fileHash,
-        variants,
+        variants: variants
+          ? Array.isArray(variants)
+            ? variants
+            : [variants]
+          : undefined,
         lifetime: lifetime ? parseInt(lifetime, 10) : undefined
       })
       .then(toFileInfo)
