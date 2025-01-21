@@ -25,7 +25,7 @@
   },
   "upload": {
     "chunkSize": 5242880,
-    "acceptedFileTypes": [".jpg"]
+    "acceptedFileTypes": [".jpg", ".jpeg", ".png"]
   },
   "machineId": 1
 }

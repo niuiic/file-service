@@ -1,7 +1,8 @@
 import z from 'zod'
 
 export const enum FileVariant {
-  ImageCompressed = 'IMAGE_COMPRESSED'
+  PngCompressed = 'PNG_COMPRESSED',
+  JpegCompressed = 'JPEG_COMPRESSED'
 }
 
-export const fileVariant = z.enum(['IMAGE_COMPRESSED'])
+export const fileVariant = z.enum(['PNG_COMPRESSED', 'JPEG_COMPRESSED'])

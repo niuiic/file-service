@@ -1,17 +1,21 @@
 import { S3Service } from '@/modules/s3/service/s3'
 import { Inject, Injectable } from '@nestjs/common'
 import { FilesDAO } from './files.dao'
-import type { FileVariant } from './variant'
+import { FileVariant } from './variant'
 import type { Readable } from 'node:stream'
-import { Transform } from 'node:stream'
-import sharp from 'sharp'
+import type { Transform } from 'node:stream'
+import { CreateJpegCompressed, CreatePngCompressed } from './createVariant'
 
 // % FileCreateVariantService %
 @Injectable()
 export class FileCreateVariantService {
   constructor(
     @Inject(FilesDAO) private readonly filesDAO: FilesDAO,
-    @Inject(S3Service) private readonly s3Service: S3Service
+    @Inject(S3Service) private readonly s3Service: S3Service,
+    @Inject(CreatePngCompressed)
+    private readonly createPngCompressed: CreatePngCompressed,
+    @Inject(CreateJpegCompressed)
+    private readonly createJpegCompressed: CreateJpegCompressed
   ) {}
 
   async createVariant(fileHash: string, variant: FileVariant) {
@@ -28,7 +32,7 @@ export class FileCreateVariantService {
     const file = files[0]
     const variantData = await this.s3Service
       .downloadFile(file.relativePath)
-      .then((x) => toVariant(x, variant))
+      .then((x) => this.toVariant(x, variant))
 
     await this.uploadVariantByStream({
       fileData: variantData,
@@ -52,7 +56,6 @@ export class FileCreateVariantService {
     uploadTime: Date
     variant: FileVariant
   }) {
-    // TODO: check if variant is supported
     const { relativePath, fileHash, fileSize } =
       await this.s3Service.uploadFileByStream({ fileData, fileName })
     await this.filesDAO.createFile({
@@ -65,16 +68,15 @@ export class FileCreateVariantService {
       origin_hash: originHash
     })
   }
+
+  private toVariant(fileData: Readable, variant: FileVariant) {
+    switch (variant) {
+      case FileVariant.PngCompressed:
+        return this.createJpegCompressed.execute(fileData)
+      case FileVariant.JpegCompressed:
+        return this.createPngCompressed.execute(fileData)
+      default:
+        throw new Error('不支持的变体')
+    }
+  }
 }
-
-// TODO: toVariant
-const toVariant = (fileData: Readable, variant: FileVariant) =>
-  fileData.pipe(sharp().jpeg({ quality: 80 })).pipe(
-    new Transform({
-      transform(chunk, _, callback) {
-        this.push(chunk)
-        callback()
-      }
-    })
-  )
-

@@ -10,6 +10,10 @@ import { FileDeleteService } from './service/fileDelete.service'
 import { FileStreamUploadService } from './service/fileStreamUpload.service'
 import { FileMultipartUploadService } from './service/fileMultipartUpload.service'
 import { FileCreateVariantService } from './service/fileCreateVariant.service'
+import {
+  CreateJpegCompressed,
+  CreatePngCompressed
+} from './service/createVariant'
 
 @Module({
   controllers: [
@@ -25,7 +29,9 @@ import { FileCreateVariantService } from './service/fileCreateVariant.service'
     FileMultipartUploadService,
     FileCreateVariantService,
     FilesDAO,
-    MultipartUploadDAO
+    MultipartUploadDAO,
+    CreatePngCompressed,
+    CreateJpegCompressed
   ]
 })
 export class FileModule {}
