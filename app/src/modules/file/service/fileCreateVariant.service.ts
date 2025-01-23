@@ -1,4 +1,4 @@
-import { S3Service } from '@/modules/s3/service/s3'
+import { S3Service } from '@/modules/s3/service/s3.service'
 import { Inject, Injectable } from '@nestjs/common'
 import { FilesDAO } from './files.dao'
 import { FileVariant } from './variant'

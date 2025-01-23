@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common'
-import { S3Service } from './service/s3'
+import { S3Service } from './service/s3.service'
 import { newClient } from './service/client'
 import { Providers } from '../symbol'
 

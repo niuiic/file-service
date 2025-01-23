@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { FilesDAO } from './files.dao'
 import { MultipartUploadDAO } from './multipartUpload.dao'
-import { S3Service } from '@/modules/s3/service/s3'
+import { S3Service } from '@/modules/s3/service/s3.service'
 import type { ChunksInfo } from './chunksInfo'
 import type { FileVariant } from './variant'
 import { FileCreateVariantService } from './fileCreateVariant.service'

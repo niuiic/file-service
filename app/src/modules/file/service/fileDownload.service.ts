@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { FilesDAO } from './files.dao'
-import { S3Service } from '@/modules/s3/service/s3'
+import { S3Service } from '@/modules/s3/service/s3.service'
 import type { FileVariant } from './variant'
 import assert from 'assert'
 
