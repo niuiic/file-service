@@ -1,5 +1,6 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { afterAll, assert, beforeAll, describe, test } from 'vitest'
+import { afterAll, beforeAll, describe, test } from 'vitest'
+import assert from 'assert'
 import request from 'supertest'
 import type { RawServerDefault } from 'fastify'
 import { initTestApp, delay } from '@/share/test'
@@ -23,6 +24,7 @@ describe('file upload controller', () => {
       timeout: 2e4
     },
     async () => {
+      const fileName = 'test.png'
       const fileData = Uint8Array.from(new Date().toString().repeat(100))
       const fileHash = createHash('md5').update(fileData).digest('hex')
 
@@ -40,7 +42,7 @@ describe('file upload controller', () => {
         .set('Content-Type', 'application/octet-stream')
         .query({
           fileHash,
-          fileName: 'test.png',
+          fileName,
           variants: ['PNG_COMPRESSED']
         })
       req.on('error', reject)
@@ -70,8 +72,10 @@ describe('file upload controller', () => {
 
   // %% multipartUpload %%
   test('multipart upload', async () => {
-    const fileName = new Date().toString()
-    const fileData = Uint8Array.from(new Date().toString().repeat(100))
+    const fileName = 'multipartUpload.jpg'
+    let text = new Date().toString()
+    text = text.repeat((8 * 1024 ** 2) / Buffer.from(text).length)
+    const fileData = Uint8Array.from(text)
     const fileHash = createHash('md5').update(fileData).digest('hex')
     const fileSize = fileData.length
 
