@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, test } from 'vitest'
 import assert from 'assert'
 import request from 'supertest'
 import type { RawServerDefault } from 'fastify'
-import { delay, initTestApp } from '@/share/test'
+import { delay, getRandomPng, initTestApp } from '@/share/test'
 import type { AppConfig } from '@/share/config'
 import { createHash } from 'crypto'
 import type { Writable } from 'stream'
@@ -25,7 +25,7 @@ describe('file upload controller', () => {
     },
     async () => {
       const fileName = 'test.png'
-      const fileData = Uint8Array.from(new Date().toString().repeat(100))
+      const fileData = Uint8Array.from(await getRandomPng())
       const fileHash = createHash('md5').update(fileData).digest('hex')
 
       const { promise, resolve, reject } = Promise.withResolvers()
