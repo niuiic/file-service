@@ -104,9 +104,7 @@ export class FileMultipartUploadService {
   }) {
     const files = await this.filesDAO.queryFilesByHash(fileHash)
     if (files.length > 0) {
-      this.createFileVariants(fileHash, variants).catch(() => {})
-
-      return this.filesDAO.createFile({
+      const file = await this.filesDAO.createFile({
         name: fileName,
         hash: fileHash,
         size: files[0].size,
@@ -114,6 +112,10 @@ export class FileMultipartUploadService {
         uploadTime: files[0].uploadTime,
         expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
       })
+
+      this.createFileVariants(fileHash, variants).catch(() => {})
+
+      return file
     }
 
     const uploadInfo = await this.multipartUploadDAO.queryUploadInfo(fileHash)
@@ -132,11 +134,7 @@ export class FileMultipartUploadService {
       Object.values(chunks)
     )
 
-    this.createFileVariants(fileHash, variants).catch(() => {})
-
-    await this.multipartUploadDAO.deleteUpload(fileHash)
-
-    return this.filesDAO.createFile({
+    const file = await this.filesDAO.createFile({
       name: fileName,
       hash: fileHash,
       size: uploadInfo.fileSize,
@@ -144,6 +142,12 @@ export class FileMultipartUploadService {
       uploadTime: new Date(),
       expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
     })
+
+    await this.multipartUploadDAO.deleteUpload(fileHash)
+
+    this.createFileVariants(fileHash, variants).catch(() => {})
+
+    return file
   }
 
   // %% createFileVariants %%

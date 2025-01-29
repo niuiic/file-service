@@ -40,9 +40,7 @@ export class FileStreamUploadService {
     if (fileHash) {
       const files = await this.filesDAO.queryFilesByHash(fileHash)
       if (files.length > 0) {
-        this.createFileVariants(fileHash, variants).catch(() => {})
-
-        return this.filesDAO.createFile({
+        const file = await this.filesDAO.createFile({
           name: fileName,
           hash: fileHash,
           size: files[0].size,
@@ -50,6 +48,10 @@ export class FileStreamUploadService {
           uploadTime: files[0].uploadTime,
           expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
         })
+
+        this.createFileVariants(fileHash, variants).catch(() => {})
+
+        return file
       }
     }
 
@@ -70,9 +72,7 @@ export class FileStreamUploadService {
       }
     }
 
-    this.createFileVariants(hash, variants).catch(() => {})
-
-    return this.filesDAO.createFile({
+    const file = await this.filesDAO.createFile({
       name: fileName,
       hash,
       size: fileSize,
@@ -80,6 +80,10 @@ export class FileStreamUploadService {
       uploadTime: new Date(),
       expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
     })
+
+    this.createFileVariants(hash, variants).catch(() => {})
+
+    return file
   }
 
   // %% createFileVariants %%
@@ -110,9 +114,7 @@ export class FileStreamUploadService {
     const files = await this.filesDAO.queryFilesByHash(fileHash)
     assert(files.length > 0, '文件未上传')
 
-    this.createFileVariants(fileHash, variants).catch(() => {})
-
-    return this.filesDAO.createFile({
+    const file = await this.filesDAO.createFile({
       name: fileName,
       hash: fileHash,
       size: files[0].size,
@@ -120,6 +122,10 @@ export class FileStreamUploadService {
       uploadTime: files[0].uploadTime,
       expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
     })
+
+    await this.createFileVariants(fileHash, variants).catch(() => {})
+
+    return file
   }
 }
 
