@@ -7,6 +7,7 @@ import { DBModule } from './modules/db/db.module'
 import { FileModule } from './modules/file/file.module'
 import { IdModule } from './modules/id/id.module'
 import { S3Module } from './modules/s3/s3.module'
+import { LoggerModule } from './modules/logger/logger.module'
 
 @Module({})
 export class AppModule {
@@ -19,7 +20,8 @@ export class AppModule {
         FileModule,
         IdModule,
         CacheModule,
-        S3Module
+        S3Module,
+        LoggerModule
       ]
     }
   }

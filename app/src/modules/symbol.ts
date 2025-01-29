@@ -3,5 +3,6 @@ export const Providers = {
   S3Client: Symbol('S3Client'),
   DBClient: Symbol('DBClient'),
   DBSchema: Symbol('DBSchema'),
-  CacheClient: Symbol('Cache')
+  CacheClient: Symbol('Cache'),
+  Logger: Symbol('Logger')
 }
