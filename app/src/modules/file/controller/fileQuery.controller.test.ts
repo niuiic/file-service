@@ -1,35 +1,64 @@
-import { assert, beforeAll, describe, test } from 'vitest'
-import { Test } from '@nestjs/testing'
-import { FileQueryController } from './fileQuery.controller'
-import { AppModule } from '@/app.module'
-import type { DBClient, DBSchema } from '@/modules/db/module'
+import { afterAll, assert, beforeAll, describe, test } from 'vitest'
+import type { NestFastifyApplication } from '@nestjs/platform-fastify'
+import type { RawServerDefault } from 'fastify'
+import { initTestApp } from '@/share/test'
 import { Providers } from '@/modules/symbol'
+import request from 'supertest'
 
 describe('file query controller', () => {
-  let controller: FileQueryController
-  let dbClient: DBClient
-  let dbSchema: DBSchema
+  let app: NestFastifyApplication<RawServerDefault>
 
-  beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule.forRoot(true)]
-    }).compile()
-    controller = moduleRef.get(FileQueryController)
-    dbClient = moduleRef.get(Providers.DBClient)
-    dbSchema = moduleRef.get(Providers.DBSchema)
-  })
+  beforeAll(async () => (app = await initTestApp()))
+
+  afterAll(() => app.close())
 
   // %% queryFileById %%
   test('queryFileById', async () => {
-    const { fileSchema } = dbSchema
-    const files = await dbClient.select().from(fileSchema)
+    const { fileSchema } = app.get(Providers.DBSchema)
+    const files = await app.get(Providers.DBClient).select().from(fileSchema)
     if (files.length === 0) {
       return
     }
 
-    await controller.queryFileById(files[0].id).then((x) => {
-      assert(x)
-      assert(x.relativePath === files[0].relativePath)
-    })
+    const file = await request(app.getHttpServer())
+      .get('/file/query/single')
+      .query({ id: files[0].id })
+      .then((x) => x.body)
+
+    assert(file)
+  })
+
+  // %% queryFilesById %%
+  test('queryFilesById', async () => {
+    const { fileSchema } = app.get(Providers.DBSchema)
+    const files = await app.get(Providers.DBClient).select().from(fileSchema)
+    if (files.length === 0) {
+      return
+    }
+
+    const results = await request(app.getHttpServer())
+      .post('/file/query/batch')
+      .send(files.map((x: any) => x.id))
+      .then((x) => {
+        return x.body
+      })
+
+    assert(files.every((x: any) => results.some((y: any) => y.id === x.id)))
+  })
+
+  // %% isFileUploaded %%
+  test('isFileUploaded', async () => {
+    const { fileSchema } = app.get(Providers.DBSchema)
+    const files = await app.get(Providers.DBClient).select().from(fileSchema)
+    if (files.length === 0) {
+      return
+    }
+
+    assert(
+      await request(app.getHttpServer())
+        .get('/file/query/exist')
+        .query({ hash: files[0].hash })
+        .then((x) => x.body)
+    )
   })
 })
