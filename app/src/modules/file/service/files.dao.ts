@@ -1,4 +1,3 @@
-import { type DBClient, type DBSchema } from '@/modules/db/module'
 import type { FileSchema } from '@/modules/db/schema'
 import { fileSchema } from '@/modules/db/schema'
 import { IdService } from '@/modules/id/id.service'
@@ -6,6 +5,7 @@ import { Providers } from '@/modules/symbol'
 import { Inject, Injectable } from '@nestjs/common'
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import type { FileVariant } from './variant'
+import type { DBClient, DBSchema } from '@/modules/db/db.module'
 
 // % dao %
 @Injectable()

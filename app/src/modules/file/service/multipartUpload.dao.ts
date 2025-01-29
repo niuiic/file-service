@@ -1,8 +1,8 @@
-import type { CacheClient } from '@/modules/cache/module'
 import { Providers } from '@/modules/symbol'
 import { isNil } from '@/share/isNil'
 import { Inject, Injectable } from '@nestjs/common'
 import type { ChunksInfo } from './chunksInfo'
+import type { CacheClient } from '@/modules/cache/cache.module'
 
 @Injectable()
 export class MultipartUploadDAO {
