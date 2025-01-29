@@ -31,7 +31,7 @@ export class FilesDAO {
       .limit(1)
 
     const file = files[0]
-    if (!variant) {
+    if (!file || !variant) {
       return file
     }
 
@@ -41,8 +41,7 @@ export class FilesDAO {
       .where(
         and(
           eq(fileSchema.origin_hash, file.hash),
-          eq(fileSchema.variant, variant),
-          isNotExpired(this.dbSchema)
+          eq(fileSchema.variant, variant)
         )
       )
       .limit(1)
@@ -66,15 +65,20 @@ export class FilesDAO {
   ): Promise<FileSchema[]> {
     const { fileSchema } = this.dbSchema
 
+    const files = await this.dbClient
+      .select()
+      .from(fileSchema)
+      .where(and(eq(fileSchema.hash, hash), isNotExpired(this.dbSchema)))
+
+    if (files.length === 0 || !variant) {
+      return files
+    }
+
     return this.dbClient
       .select()
       .from(fileSchema)
       .where(
-        and(
-          eq(variant ? fileSchema.origin_hash : fileSchema.hash, hash),
-          variant ? eq(fileSchema.variant, variant) : undefined,
-          isNotExpired(this.dbSchema)
-        )
+        and(eq(fileSchema.origin_hash, hash), eq(fileSchema.variant, variant))
       )
   }
 
