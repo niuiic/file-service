@@ -14,12 +14,14 @@ import {
   CreateJpegCompressed,
   CreatePngCompressed
 } from './service/createVariant'
+import { FileDownloadController } from './controller/fileDownload.controller'
 
 @Module({
   controllers: [
     FileQueryController,
     FileDeleteController,
-    FileUploadController
+    FileUploadController,
+    FileDownloadController
   ],
   providers: [
     FileQueryService,
