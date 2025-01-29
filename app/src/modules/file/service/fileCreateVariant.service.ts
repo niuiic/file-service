@@ -6,6 +6,7 @@ import type { Readable } from 'node:stream'
 import type { Transform } from 'node:stream'
 import { CreateJpegCompressed, CreatePngCompressed } from './createVariant'
 import assert from 'node:assert'
+import { never } from '@/share/never'
 
 // % FileCreateVariantService %
 @Injectable()
@@ -74,8 +75,11 @@ export class FileCreateVariantService {
         return this.createJpegCompressed.execute(fileData)
       case FileVariant.JpegCompressed:
         return this.createPngCompressed.execute(fileData)
-      default:
+      default: {
+        never(variant)
         throw new Error('不支持的变体')
+      }
     }
   }
 }
+
