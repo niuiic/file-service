@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, test } from 'vitest'
 import assert from 'assert'
 import request from 'supertest'
 import type { RawServerDefault } from 'fastify'
-import { initTestApp, delay } from '@/share/test'
+import { delay, initTestApp } from '@/share/test'
 import type { AppConfig } from '@/share/config'
 import { createHash } from 'crypto'
 import type { Writable } from 'stream'
@@ -45,8 +45,8 @@ describe('file upload controller', () => {
           fileName,
           variants: ['PNG_COMPRESSED']
         })
-      req.on('error', reject)
-      req.on('end', resolve)
+        .on('end', resolve)
+        .on('error', reject)
 
       readable.pipe(req as unknown as Writable)
 
