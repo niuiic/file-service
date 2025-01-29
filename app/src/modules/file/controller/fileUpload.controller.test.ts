@@ -62,12 +62,17 @@ describe('file upload controller', () => {
   )
 
   // %% uploadFileByHash %%
-  test('uploadFileByHash', () => {
-    request(app.getHttpServer())
+  test('uploadFileByHash', async () => {
+    const { fileSchema } = app.get(Providers.DBSchema)
+    const files = await app.get(Providers.DBClient).select().from(fileSchema)
+    if (files.length === 0) {
+      return
+    }
+
+    await request(app.getHttpServer())
       .post('/file/upload/hash')
-      .field('fileName', new Date().toString())
-      .field('fileHash', new Date().toString())
-      .expect(500)
+      .send({ fileName: 'hashUpload.png', fileHash: files[0].hash })
+      .expect(201)
   })
 
   // %% multipartUpload %%
