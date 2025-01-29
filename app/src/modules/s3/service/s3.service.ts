@@ -10,7 +10,8 @@ import {
 import type { AppConfig } from '@/share/config'
 import { join } from 'path'
 import { Upload } from '@aws-sdk/lib-storage'
-import { Transform, Readable } from 'stream'
+import type { Readable } from 'stream'
+import { Transform } from 'stream'
 import { Providers } from '@/modules/symbol'
 import { IdService } from '@/modules/id/id.service'
 import assert from 'assert'
@@ -173,16 +174,14 @@ export class S3Service {
   async downloadFile(relativePath: string): Promise<Readable> {
     const { bucket, objectKey } = getBucketAndObjectKey(relativePath)
 
-    const webStream = (
-      await this.client.send(
-        new GetObjectCommand({
-          Bucket: bucket,
-          Key: objectKey
-        })
-      )
-    ).Body!.transformToWebStream()
+    const res = await this.client.send(
+      new GetObjectCommand({
+        Bucket: bucket,
+        Key: objectKey
+      })
+    )
 
-    return toReadable(webStream)
+    return res.Body as Readable
   }
 
   // %% newObjectKey %%
@@ -203,22 +202,3 @@ const getBucketAndObjectKey = (relativePath: string) => {
 
 const getRelativePath = (bucket: string, objectKey: string) =>
   join(bucket, objectKey)
-
-const toReadable = (webStream: ReadableStream) => {
-  const reader = webStream.getReader()
-
-  return new Readable({
-    read() {
-      reader
-        .read()
-        .then(({ done, value }) => {
-          if (done) {
-            this.push(null)
-          } else {
-            this.push(value)
-          }
-        })
-        .catch(() => {})
-    }
-  })
-}
