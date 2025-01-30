@@ -18,7 +18,8 @@ export class FileCleanService {
     CronJob.from({
       cronTime: config.cleanCron,
       onTick: () => this.cleanExpiredFiles(),
-      start: true
+      start: true,
+      timeZone: this.config.timezone
     })
   }
 

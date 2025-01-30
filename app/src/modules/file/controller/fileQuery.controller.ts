@@ -6,6 +6,7 @@ import { FileQueryService } from '../service/fileQuery.service'
 import type { FileVariant } from '../service/variant'
 import { fileVariant } from '../service/variant'
 import { toFileInfo, type FileInfo } from './fileInfo'
+import { TimeService } from '@/modules/time/time.service'
 
 // % controller %
 @Controller('file/query')
@@ -13,7 +14,9 @@ export class FileQueryController {
   // %% constructor %%
   constructor(
     @Inject(FileQueryService)
-    private readonly fileQueryService: FileQueryService
+    private readonly fileQueryService: FileQueryService,
+    @Inject(TimeService)
+    private readonly timeService: TimeService
   ) {}
 
   // %% queryFileById %%
@@ -21,7 +24,9 @@ export class FileQueryController {
   async queryFileById(
     @Query('id', new ZodValidationPipe(idString)) id: string
   ): Promise<FileInfo | undefined> {
-    return this.fileQueryService.queryFileInfo(id).then(toFileInfo)
+    return this.fileQueryService
+      .queryFileInfo(id)
+      .then((x) => toFileInfo(x, this.timeService))
   }
 
   // %% queryFilesById %%
@@ -31,7 +36,7 @@ export class FileQueryController {
   ): Promise<FileInfo[]> {
     return this.fileQueryService
       .queryFilesInfo(ids)
-      .then((x) => x.map(toFileInfo))
+      .then((x) => x.map((y) => toFileInfo(y, this.timeService)))
   }
 
   // %% isFileUploaded %%

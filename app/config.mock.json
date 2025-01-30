@@ -31,5 +31,6 @@
     "quality": 80
   },
   "machineId": 1,
-  "cleanCron": "0 * * * *"
+  "cleanCron": "0 * * * *",
+  "timezone": "Asia/Shanghai"
 }

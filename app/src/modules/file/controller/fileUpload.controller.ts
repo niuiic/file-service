@@ -9,6 +9,7 @@ import type { FileInfo } from './fileInfo'
 import { toFileInfo } from './fileInfo'
 import type { FileVariant } from '../service/variant'
 import { fileVariant } from '../service/variant'
+import { TimeService } from '@/modules/time/time.service'
 
 // % controller %
 @Controller('file')
@@ -18,7 +19,9 @@ export class FileUploadController {
     @Inject(FileStreamUploadService)
     private readonly fileUploadService: FileStreamUploadService,
     @Inject(FileMultipartUploadService)
-    private readonly fileMultipartUploadService: FileMultipartUploadService
+    private readonly fileMultipartUploadService: FileMultipartUploadService,
+    @Inject(TimeService)
+    private readonly timeService: TimeService
   ) {}
 
   // %% uploadFileByStream %%
@@ -48,7 +51,7 @@ export class FileUploadController {
           : undefined,
         lifetime: lifetime ? parseInt(lifetime, 10) : undefined
       })
-      .then(toFileInfo)
+      .then((x) => toFileInfo(x, this.timeService))
   }
 
   // %% uploadFileByHash %%
@@ -64,7 +67,7 @@ export class FileUploadController {
         variants: data.variants as FileVariant[] | undefined,
         lifetime: data.lifetime
       })
-      .then(toFileInfo)
+      .then((x) => toFileInfo(x, this.timeService))
   }
   private static uploadFileByHashDTO = z.object({
     fileHash: z.string(),

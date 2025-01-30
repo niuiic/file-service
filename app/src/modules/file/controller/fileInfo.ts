@@ -1,10 +1,18 @@
 import type { FileSchema } from '@/modules/db/schema'
-import { pick } from '@/share/pick'
+import type { TimeService } from '@/modules/time/time.service'
 
 export type FileInfo = Pick<
   FileSchema,
-  'id' | 'name' | 'size' | 'uploadTime' | 'relativePath'
->
+  'id' | 'name' | 'size' | 'relativePath'
+> & { uploadTime: string }
 
-export const toFileInfo = (file: FileSchema): FileInfo =>
-  pick(file, ['id', 'name', 'size', 'uploadTime', 'relativePath'])
+export const toFileInfo = (
+  file: FileSchema,
+  timeService: TimeService
+): FileInfo => ({
+  id: file.id,
+  name: file.name,
+  size: file.size,
+  uploadTime: timeService.formatTime(file.uploadTime),
+  relativePath: file.relativePath
+})

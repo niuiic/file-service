@@ -41,7 +41,8 @@ const appConfigSchema = z.object({
     .number()
     .min(0, 'machineId不能小于0')
     .max(2 ** 6 - 1, 'machineId不能超过63'),
-  cleanCron: z.string()
+  cleanCron: z.string(),
+  timezone: z.string()
 })
 
 export type AppConfig = z.infer<typeof appConfigSchema>

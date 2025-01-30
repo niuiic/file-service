@@ -13,6 +13,7 @@ import {
   PerformanceLoggingInterceptor,
   ResponseTransformInterceptor
 } from './share/interceptor'
+import { TimeModule } from './modules/time/time.module'
 
 @Module({})
 export class AppModule {
@@ -26,7 +27,8 @@ export class AppModule {
         IdModule,
         CacheModule,
         S3Module,
-        LoggerModule
+        LoggerModule,
+        TimeModule
       ],
       providers: [
         {
