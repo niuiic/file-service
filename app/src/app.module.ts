@@ -8,6 +8,11 @@ import { FileModule } from './modules/file/file.module'
 import { IdModule } from './modules/id/id.module'
 import { S3Module } from './modules/s3/s3.module'
 import { LoggerModule } from './modules/logger/logger.module'
+import { APP_INTERCEPTOR } from '@nestjs/core'
+import {
+  PerformanceLoggingInterceptor,
+  ResponseTransformInterceptor
+} from './share/interceptor'
 
 @Module({})
 export class AppModule {
@@ -22,6 +27,16 @@ export class AppModule {
         CacheModule,
         S3Module,
         LoggerModule
+      ],
+      providers: [
+        {
+          provide: APP_INTERCEPTOR,
+          useClass: ResponseTransformInterceptor
+        },
+        {
+          provide: APP_INTERCEPTOR,
+          useClass: PerformanceLoggingInterceptor
+        }
       ]
     }
   }

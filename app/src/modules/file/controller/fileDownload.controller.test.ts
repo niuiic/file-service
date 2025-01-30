@@ -23,7 +23,7 @@ describe('file download controller', () => {
     const fileSize: number = await request(app.getHttpServer())
       .get('/file/query/single')
       .query({ id: files[0].id })
-      .then((x) => x.body.size)
+      .then((x) => x.body.data.size)
 
     const { promise, resolve, reject } = Promise.withResolvers<undefined>()
     await request(app.getHttpServer())

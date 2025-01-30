@@ -5,6 +5,7 @@ import type { FileVariant } from '../service/variant'
 import { fileVariant } from '../service/variant'
 import { FileDownloadService } from '../service/fileDownload.service'
 import type { FastifyReply } from 'fastify'
+import { SkipTransformResponse } from '@/share/interceptor'
 
 // % controller %
 @Controller('file/download')
@@ -17,6 +18,7 @@ export class FileDownloadController {
 
   // %% downloadFile %%
   @Get('/')
+  @SkipTransformResponse()
   async downloadFile(
     @Res()
     res: FastifyReply,

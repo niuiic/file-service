@@ -23,7 +23,7 @@ describe('file query controller', () => {
     const file = await request(app.getHttpServer())
       .get('/file/query/single')
       .query({ id: files[0].id })
-      .then((x) => x.body)
+      .then((x) => x.body.data)
 
     assert(file)
   })
@@ -39,9 +39,7 @@ describe('file query controller', () => {
     const results = await request(app.getHttpServer())
       .post('/file/query/batch')
       .send(files.map((x: any) => x.id))
-      .then((x) => {
-        return x.body
-      })
+      .then((x) => x.body.data)
 
     assert(files.every((x: any) => results.some((y: any) => y.id === x.id)))
   })
@@ -58,7 +56,7 @@ describe('file query controller', () => {
       await request(app.getHttpServer())
         .get('/file/query/exist')
         .query({ hash: files[0].hash })
-        .then((x) => x.body)
+        .then((x) => x.body.data)
     )
   })
 })

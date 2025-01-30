@@ -56,7 +56,7 @@ describe('file upload controller', () => {
           request(app.getHttpServer())
             .get('/file/query/exist')
             .query({ hash: fileHash, variant: 'PNG_COMPRESSED' })
-            .then((res) => assert(res.body))
+            .then((res) => assert(res.body.data))
         )
     }
   )
