@@ -27,9 +27,9 @@ export const fileSchema = pgTable('files', {
   hash: varchar({ length: 32 }).notNull(),
   size: integer().notNull(),
   relativePath: varchar({ length: 1024 }).notNull(),
-  createTime: timestamp({ withTimezone: true }).notNull(),
-  uploadTime: timestamp({ withTimezone: true }).notNull(),
-  expiryTime: timestamp({ withTimezone: true }),
+  createTime: timestamp().notNull(),
+  uploadTime: timestamp().notNull(),
+  expiryTime: timestamp(),
   variant: varchar({ length: 32 }),
   origin_hash: varchar({ length: 32 })
 })

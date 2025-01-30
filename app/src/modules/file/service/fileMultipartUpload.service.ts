@@ -8,6 +8,7 @@ import { FileCreateVariantService } from './fileCreateVariant.service'
 import { Providers } from '@/modules/symbol'
 import type { AppConfig } from '@/share/config'
 import { validateFileType } from './validateFileType'
+import { TimeService } from '@/modules/time/time.service'
 
 // % FileMultipartUploadService %
 @Injectable()
@@ -20,7 +21,8 @@ export class FileMultipartUploadService {
     @Inject(S3Service) private readonly s3Service: S3Service,
     @Inject(FileCreateVariantService)
     private readonly fileCreateVariantService: FileCreateVariantService,
-    @Inject(Providers.Config) private readonly config: AppConfig
+    @Inject(Providers.Config) private readonly config: AppConfig,
+    @Inject(TimeService) private readonly timeService: TimeService
   ) {}
 
   // %% requestFileChunks %%
@@ -110,7 +112,7 @@ export class FileMultipartUploadService {
         size: files[0].size,
         relativePath: files[0].relativePath,
         uploadTime: files[0].uploadTime,
-        expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
+        expiryTime: lifetime ? this.getExpiryTime(lifetime) : undefined
       })
 
       this.createFileVariants(fileHash, variants).catch(() => {})
@@ -139,8 +141,8 @@ export class FileMultipartUploadService {
       hash: fileHash,
       size: uploadInfo.fileSize,
       relativePath: uploadInfo.relativePath,
-      uploadTime: new Date(),
-      expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
+      uploadTime: this.timeService.getNow(),
+      expiryTime: lifetime ? this.getExpiryTime(lifetime) : undefined
     })
 
     await this.multipartUploadDAO.deleteUpload(fileHash)
@@ -162,8 +164,10 @@ export class FileMultipartUploadService {
         .map((x) => this.fileCreateVariantService.createVariant(fileHash, x))
     )
   }
-}
 
-// % extract %
-const getExpiryTime = (lifetime: number) =>
-  new Date(new Date().getTime() + lifetime * 1000)
+  private getExpiryTime(lifetime: number) {
+    return this.timeService.toZonedTime(
+      new Date(new Date().getTime() + lifetime * 1000)
+    )
+  }
+}

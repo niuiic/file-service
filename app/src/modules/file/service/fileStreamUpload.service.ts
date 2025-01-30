@@ -8,6 +8,7 @@ import assert from 'assert'
 import { validateFileType } from './validateFileType'
 import { Providers } from '@/modules/symbol'
 import type { AppConfig } from '@/share/config'
+import { TimeService } from '@/modules/time/time.service'
 
 // % FileStreamUploadService %
 @Injectable()
@@ -18,7 +19,8 @@ export class FileStreamUploadService {
     @Inject(S3Service) private readonly s3Service: S3Service,
     @Inject(FileCreateVariantService)
     private readonly fileCreateVariantService: FileCreateVariantService,
-    @Inject(Providers.Config) private readonly config: AppConfig
+    @Inject(Providers.Config) private readonly config: AppConfig,
+    @Inject(TimeService) private readonly timeService: TimeService
   ) {}
 
   // %% uploadFileByStream %%
@@ -46,7 +48,7 @@ export class FileStreamUploadService {
           size: files[0].size,
           relativePath: files[0].relativePath,
           uploadTime: files[0].uploadTime,
-          expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
+          expiryTime: lifetime ? this.getExpiryTime(lifetime) : undefined
         })
 
         this.createFileVariants(fileHash, variants).catch(() => {})
@@ -77,8 +79,8 @@ export class FileStreamUploadService {
       hash,
       size: fileSize,
       relativePath,
-      uploadTime: new Date(),
-      expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
+      uploadTime: this.timeService.getNow(),
+      expiryTime: lifetime ? this.getExpiryTime(lifetime) : undefined
     })
 
     this.createFileVariants(hash, variants).catch(() => {})
@@ -120,15 +122,17 @@ export class FileStreamUploadService {
       size: files[0].size,
       relativePath: files[0].relativePath,
       uploadTime: files[0].uploadTime,
-      expiryTime: lifetime ? getExpiryTime(lifetime) : undefined
+      expiryTime: lifetime ? this.getExpiryTime(lifetime) : undefined
     })
 
     await this.createFileVariants(fileHash, variants).catch(() => {})
 
     return file
   }
-}
 
-// % extract %
-const getExpiryTime = (lifetime: number) =>
-  new Date(new Date().getTime() + lifetime * 1000)
+  private getExpiryTime(lifetime: number) {
+    return this.timeService.toZonedTime(
+      new Date(new Date().getTime() + lifetime * 1000)
+    )
+  }
+}

@@ -6,6 +6,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import type { FileVariant } from './variant'
 import type { DBClient, DBSchema } from '@/modules/db/db.module'
+import { TimeService } from '@/modules/time/time.service'
 
 // % dao %
 @Injectable()
@@ -14,7 +15,8 @@ export class FilesDAO {
   constructor(
     @Inject(Providers.DBClient) private readonly dbClient: DBClient,
     @Inject(Providers.DBSchema) private readonly dbSchema: DBSchema,
-    @Inject(IdService) private readonly idService: IdService
+    @Inject(IdService) private readonly idService: IdService,
+    @Inject(TimeService) private readonly timeService: TimeService
   ) {}
 
   // %% queryFileById %%
@@ -105,7 +107,7 @@ export class FilesDAO {
     const newFile = {
       ...file,
       id: this.idService.generateId(),
-      createTime: new Date()
+      createTime: this.timeService.getNow()
     }
 
     return this.dbClient

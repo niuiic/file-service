@@ -12,6 +12,10 @@ export class TimeService {
     return toZonedTime(new Date(), this.config.timezone)
   }
 
+  toZonedTime(date: Date) {
+    return toZonedTime(date, this.config.timezone)
+  }
+
   formatTime(time: Date) {
     return format(time, 'yyyy/MM/dd HH:mm:ss')
   }
