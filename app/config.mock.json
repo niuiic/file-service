@@ -27,6 +27,9 @@
     "chunkSize": 5242880,
     "acceptedFileTypes": [".jpg", ".jpeg", ".png"]
   },
+  "variant": {
+    "quality": 80
+  },
   "machineId": 1,
   "cleanCron": "0 * * * *"
 }

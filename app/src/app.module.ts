@@ -31,11 +31,11 @@ export class AppModule {
       providers: [
         {
           provide: APP_INTERCEPTOR,
-          useClass: ResponseTransformInterceptor
+          useClass: PerformanceLoggingInterceptor
         },
         {
           provide: APP_INTERCEPTOR,
-          useClass: PerformanceLoggingInterceptor
+          useClass: ResponseTransformInterceptor
         }
       ]
     }

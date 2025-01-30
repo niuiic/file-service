@@ -5,7 +5,12 @@ import type {
   ExecutionContext,
   NestInterceptor
 } from '@nestjs/common'
-import { Inject, Injectable, SetMetadata } from '@nestjs/common'
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  SetMetadata
+} from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { throwError, type Observable } from 'rxjs'
 import { catchError, map, tap } from 'rxjs/operators'
@@ -25,6 +30,17 @@ export class PerformanceLoggingInterceptor<T>
         const endTime = Date.now()
         const duration = endTime - startTime
         this.logger.info({ url, duration })
+      }),
+      catchError((err) => {
+        const endTime = Date.now()
+        const duration = endTime - startTime
+        this.logger.error({
+          url,
+          duration,
+          err: err.message,
+          stack: err.stack
+        })
+        return throwError(() => err)
       })
     )
   }
@@ -50,7 +66,7 @@ export class ResponseTransformInterceptor<T>
       map((data) => ({ code: 200, data })),
       catchError((err) =>
         throwError(() => ({
-          code: 500,
+          code: err instanceof BadRequestException ? 400 : 500,
           msg: err.message || 'An unexpected error occurred'
         }))
       )
