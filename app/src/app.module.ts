@@ -14,6 +14,7 @@ import {
   ResponseTransformInterceptor
 } from './share/interceptor'
 import { TimeModule } from './modules/time/time.module'
+import { TaskModule } from './modules/task/task.module'
 
 @Module({})
 export class AppModule {
@@ -28,7 +29,8 @@ export class AppModule {
         CacheModule,
         S3Module,
         LoggerModule,
-        TimeModule
+        TimeModule,
+        TaskModule
       ],
       providers: [
         {
