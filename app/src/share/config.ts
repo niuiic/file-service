@@ -31,6 +31,12 @@ const appConfigSchema = z.object({
     chunkSize: z.number().min(5 * 1024 ** 2, 'chunkSize不能小于5M'),
     acceptedFileTypes: z.array(z.string())
   }),
+  variant: z.object({
+    quality: z
+      .number()
+      .min(0, 'quality不能小于0')
+      .max(100, 'quality不能大于100')
+  }),
   machineId: z
     .number()
     .min(0, 'machineId不能小于0')

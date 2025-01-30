@@ -1,6 +1,8 @@
 import { Transform, type Readable } from 'stream'
 import sharp from 'sharp'
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
+import { Providers } from '@/modules/symbol'
+import type { AppConfig } from '@/share/config'
 
 interface CreateVariant {
   execute(fileData: Readable): Transform
@@ -8,28 +10,36 @@ interface CreateVariant {
 
 @Injectable()
 export class CreatePngCompressed implements CreateVariant {
+  constructor(@Inject(Providers.Config) private readonly config: AppConfig) {}
+
   execute(fileData: Readable) {
-    return fileData.pipe(sharp().png({ quality: 80 })).pipe(
-      new Transform({
-        transform(chunk, _, callback) {
-          this.push(chunk)
-          callback()
-        }
-      })
-    )
+    return fileData
+      .pipe(sharp().png({ quality: this.config.variant.quality }))
+      .pipe(
+        new Transform({
+          transform(chunk, _, callback) {
+            this.push(chunk)
+            callback()
+          }
+        })
+      )
   }
 }
 
 @Injectable()
 export class CreateJpegCompressed implements CreateVariant {
+  constructor(@Inject(Providers.Config) private readonly config: AppConfig) {}
+
   execute(fileData: Readable) {
-    return fileData.pipe(sharp().jpeg({ quality: 80 })).pipe(
-      new Transform({
-        transform(chunk, _, callback) {
-          this.push(chunk)
-          callback()
-        }
-      })
-    )
+    return fileData
+      .pipe(sharp().jpeg({ quality: this.config.variant.quality }))
+      .pipe(
+        new Transform({
+          transform(chunk, _, callback) {
+            this.push(chunk)
+            callback()
+          }
+        })
+      )
   }
 }
