@@ -20,14 +20,20 @@ export class FilesDAO {
   // %% queryFileById %%
   async queryFileById(
     id: string,
-    variant?: FileVariant
+    variant?: FileVariant,
+    includeExpired?: boolean
   ): Promise<FileSchema | undefined> {
     const { fileSchema } = this.dbSchema
 
     const files = await this.dbClient
       .select()
       .from(fileSchema)
-      .where(and(eq(fileSchema.id, id), isNotExpired(this.dbSchema)))
+      .where(
+        and(
+          eq(fileSchema.id, id),
+          includeExpired ? undefined : isNotExpired(this.dbSchema)
+        )
+      )
       .limit(1)
 
     const file = files[0]
@@ -114,10 +120,25 @@ export class FilesDAO {
 
     return this.dbClient.delete(fileSchema).where(eq(fileSchema.id, id))
   }
+
+  // %% queryExpiredFiles %%
+  async queryExpiredFiles(): Promise<FileSchema[]> {
+    const { fileSchema } = this.dbSchema
+
+    return this.dbClient
+      .select()
+      .from(fileSchema)
+      .where(isExpired(this.dbSchema))
+  }
 }
 
 // % extract %
 const isNotExpired = (dbSchema: DBSchema) => {
   const { fileSchema } = dbSchema
   return sql`${fileSchema.expiryTime} IS NULL OR ${fileSchema.expiryTime} > NOW()`
+}
+
+const isExpired = (dbSchema: DBSchema) => {
+  const { fileSchema } = dbSchema
+  return sql`${fileSchema.expiryTime} IS NOT NULL AND ${fileSchema.expiryTime} < NOW()`
 }

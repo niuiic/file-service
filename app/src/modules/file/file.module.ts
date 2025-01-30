@@ -15,6 +15,7 @@ import {
   CreatePngCompressed
 } from './service/createVariant'
 import { FileDownloadController } from './controller/fileDownload.controller'
+import { FileCleanService } from './service/fileClean.service'
 
 @Module({
   controllers: [
@@ -33,7 +34,8 @@ import { FileDownloadController } from './controller/fileDownload.controller'
     FilesDAO,
     MultipartUploadDAO,
     CreatePngCompressed,
-    CreateJpegCompressed
+    CreateJpegCompressed,
+    FileCleanService
   ]
 })
 export class FileModule {}

@@ -11,7 +11,7 @@ export class FileDeleteService {
   ) {}
 
   async deleteFile(fileId: string) {
-    const file = await this.filesDAO.queryFileById(fileId)
+    const file = await this.filesDAO.queryFileById(fileId, undefined, true)
     assert(file, '文件不存在')
 
     await this.filesDAO.deleteFileById(fileId)

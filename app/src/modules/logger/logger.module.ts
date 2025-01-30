@@ -16,11 +16,6 @@ export type Logger = ReturnType<typeof createLogger>
             new transports.File({
               filename: 'all.log',
               level: 'info'
-            }),
-            new transports.File({
-              filename: 'recover.log',
-              level: 'warn',
-              handleExceptions: false
             })
           ]
         })
