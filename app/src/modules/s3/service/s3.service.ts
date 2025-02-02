@@ -14,7 +14,7 @@ import type { Readable } from 'stream'
 import { Transform } from 'stream'
 import { Providers } from '@/modules/symbol'
 import { IdService } from '@/modules/id/id.service'
-import assert from 'assert'
+import { assert } from '@/share/assert'
 
 // % service %
 @Injectable()

@@ -12,10 +12,13 @@ import { FileCleanService } from './modules/file/service/fileClean.service'
 const bootstrap = async () => {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule.forRoot(isMockMode()),
-    new FastifyAdapter()
+    new FastifyAdapter(),
+    {
+      logger: process.env.NODE_ENV === 'production' ? false : undefined
+    }
   )
 
-  await app.register(cors as any, {
+  await app.register(cors, {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: '*',

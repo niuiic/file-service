@@ -7,7 +7,7 @@ import {
   PutBucketPolicyCommand,
   S3Client
 } from '@aws-sdk/client-s3'
-import assert from 'assert'
+import { assert } from '@/share/assert'
 
 export const newClient = async (config: AppConfig) => {
   const client = new S3Client({

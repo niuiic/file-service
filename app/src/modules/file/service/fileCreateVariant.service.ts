@@ -5,7 +5,7 @@ import { FileVariant } from './variant'
 import type { Readable } from 'node:stream'
 import type { Transform } from 'node:stream'
 import { CreateJpegCompressed, CreatePngCompressed } from './createVariant'
-import assert from 'node:assert'
+import { assert } from '@/share/assert'
 import { never } from '@/share/never'
 
 // % FileCreateVariantService %

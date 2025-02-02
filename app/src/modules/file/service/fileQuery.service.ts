@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { FilesDAO } from './files.dao'
-import assert from 'node:assert'
+import { assert } from '@/share/assert'
 import type { FileVariant } from './variant'
 
 // % FileQueryService %

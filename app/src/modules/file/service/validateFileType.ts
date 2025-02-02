@@ -1,4 +1,4 @@
-import assert from 'assert'
+import { assert } from '@/share/assert'
 
 export const validateFileType = (
   fileName: string,

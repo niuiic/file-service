@@ -1,6 +1,6 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify'
 import { afterAll, beforeAll, describe, test } from 'vitest'
-import assert from 'assert'
+import { assert } from '@/share/assert'
 import request from 'supertest'
 import type { RawServerDefault } from 'fastify'
 import { delay, getRandomPng, initTestApp } from '@/share/test'
