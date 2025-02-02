@@ -23,7 +23,7 @@ export class FileQueryController {
   @Get('single')
   async queryFileById(
     @Query('id', new ZodValidationPipe(idString)) id: string
-  ): Promise<FileInfo | undefined> {
+  ): Promise<FileInfo> {
     return this.fileQueryService
       .queryFileInfo(id)
       .then((x) => toFileInfo(x, this.timeService))
